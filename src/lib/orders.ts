@@ -115,4 +115,22 @@ export async function reopenOrder(id: string): Promise<void> {
   });
 }
 
+export async function updateOrder(
+  id: string,
+  input: {
+    clienteNome: string;
+    marcaId: BrandId;
+    marcaNome: string;
+    itens: CartItem[];
+    total: number;
+    observacao: string;
+  }
+): Promise<void> {
+  if (!auth.currentUser?.uid) {
+    throw new Error("auth/user-not-signed-in");
+  }
+
+  await updateDoc(doc(db, COLLECTION, id), input);
+}
+
 export { getFirestoreErrorMessage };

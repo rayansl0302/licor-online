@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { OrderEditModal } from "./OrderEditModal";
 import { usePix } from "../contexts/PixContext";
 import { formatCurrency, formatDate } from "../utils/format";
 import { copyOrderText, printOrder } from "../utils/orderText";
@@ -43,6 +44,7 @@ export function OrdersPanel({
 }: OrdersPanelProps) {
   const { pixKey, pixBank, pixHolderName } = usePix();
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const filtered = filterOrdersByStatus(orders, status);
   const pendingOrders = getPendingOrders(orders);
   const pendingCount = pendingOrders.length;
@@ -209,6 +211,13 @@ export function OrdersPanel({
                   <>
                     <button
                       type="button"
+                      className="btn btn--primary btn--small"
+                      onClick={() => setEditingOrder(order)}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
                       className="btn btn--vendido btn--small"
                       onClick={() => onToggleDone(order.id, true)}
                     >
@@ -246,6 +255,12 @@ export function OrdersPanel({
           );
         })}
       </ul>
+
+      <OrderEditModal
+        order={editingOrder}
+        onClose={() => setEditingOrder(null)}
+        onSaved={(message) => setFeedback(message)}
+      />
     </section>
   );
 }

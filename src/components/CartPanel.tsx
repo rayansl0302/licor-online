@@ -16,6 +16,9 @@ interface CartPanelProps {
   onSave: () => void;
   onCopy: () => void;
   onPrint: () => void;
+  saveLabel?: string;
+  showClear?: boolean;
+  onCancel?: () => void;
 }
 
 export function CartPanel({
@@ -33,6 +36,9 @@ export function CartPanel({
   onSave,
   onCopy,
   onPrint,
+  saveLabel = "Salvar pedido",
+  showClear = true,
+  onCancel,
 }: CartPanelProps) {
   const canSave = clienteNome.trim().length > 0 && items.length > 0 && !saving;
 
@@ -140,21 +146,33 @@ export function CartPanel({
           </button>
         </div>
         <div className="cart-actions">
-          <button
-            type="button"
-            className="btn btn--secondary"
-            disabled={items.length === 0 || saving}
-            onClick={onClear}
-          >
-            Limpar
-          </button>
+          {onCancel && (
+            <button
+              type="button"
+              className="btn btn--secondary"
+              disabled={saving}
+              onClick={onCancel}
+            >
+              Cancelar
+            </button>
+          )}
+          {showClear && (
+            <button
+              type="button"
+              className="btn btn--secondary"
+              disabled={items.length === 0 || saving}
+              onClick={onClear}
+            >
+              Limpar
+            </button>
+          )}
           <button
             type="button"
             className="btn btn--primary"
             disabled={!canSave}
             onClick={onSave}
           >
-            {saving ? "Salvando…" : "Salvar pedido"}
+            {saving ? "Salvando…" : saveLabel}
           </button>
         </div>
       </div>
