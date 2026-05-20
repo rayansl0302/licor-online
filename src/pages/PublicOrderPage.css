@@ -43,17 +43,6 @@
   min-width: 0;
 }
 
-.public-order__success {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  min-height: 60dvh;
-  text-align: center;
-  padding: 2rem 1rem;
-}
-
 @media (max-width: 900px) {
   .public-order__layout {
     grid-template-columns: 1fr;

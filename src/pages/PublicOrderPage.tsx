@@ -9,7 +9,8 @@ import { useCart } from "../hooks/useCart";
 import { getFirestoreErrorMessage, savePublicOrder } from "../lib/orders";
 import type { BrandId } from "../types";
 import { getMarcaLabelFromItems } from "../utils/parseOrderText";
-import { copyOrderText } from "../utils/orderText";
+import { PublicOrderSuccess } from "../components/PublicOrderSuccess";
+import { copyOrderText, type OrderTextInput } from "../utils/orderText";
 import "./PublicOrderPage.css";
 
 export function PublicOrderPage() {
@@ -20,7 +21,7 @@ export function PublicOrderPage() {
   const [observacao, setObservacao] = useState("");
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState(false);
+  const [completedOrder, setCompletedOrder] = useState<OrderTextInput | null>(null);
 
   const cart = useCart();
 
@@ -85,18 +86,27 @@ export function PublicOrderPage() {
     setFeedback(null);
 
     try {
-      await savePublicOrder({
+      const submittedSnapshot: OrderTextInput = {
         clienteNome: clienteNome.trim(),
-        marcaId: mid,
         marcaNome,
-        itens: cart.items,
+        itens: [...cart.items],
         total: cart.total,
         observacao: observacao.trim(),
+      };
+
+      await savePublicOrder({
+        clienteNome: submittedSnapshot.clienteNome,
+        marcaId: mid,
+        marcaNome,
+        itens: submittedSnapshot.itens,
+        total: submittedSnapshot.total,
+        observacao: submittedSnapshot.observacao ?? "",
       });
+
+      setCompletedOrder(submittedSnapshot);
       cart.clear();
       setClienteNome("");
       setObservacao("");
-      setSubmitted(true);
     } catch (err) {
       setFeedback(getFirestoreErrorMessage(err));
     } finally {
@@ -105,26 +115,14 @@ export function PublicOrderPage() {
   };
 
   const handleNewOrder = () => {
-    setSubmitted(false);
+    setCompletedOrder(null);
     setFeedback(null);
   };
 
-  if (submitted) {
+  if (completedOrder) {
     return (
       <div className="public-order">
-        <main className="public-order__success">
-          <h1 className="public-order__title">Pedido enviado!</h1>
-          <p className="public-order__subtitle">
-            Recebemos seu pedido. Em breve entraremos em contato para confirmar.
-          </p>
-          <button
-            type="button"
-            className="btn btn--primary"
-            onClick={handleNewOrder}
-          >
-            Fazer outro pedido
-          </button>
-        </main>
+        <PublicOrderSuccess order={completedOrder} onNewOrder={handleNewOrder} />
       </div>
     );
   }

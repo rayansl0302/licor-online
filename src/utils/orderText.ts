@@ -77,8 +77,11 @@ export function formatOrderText(order: OrderTextInput): string {
   return lines.join("\n");
 }
 
-export async function copyOrderText(order: OrderTextInput): Promise<boolean> {
-  const text = formatOrderText(order);
+export function formatWhatsAppConfirmMessage(order: OrderTextInput): string {
+  return `Olá! Segue meu pedido:\n\n${formatOrderText(order)}`;
+}
+
+async function copyTextToClipboard(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);
     return true;
@@ -94,6 +97,16 @@ export async function copyOrderText(order: OrderTextInput): Promise<boolean> {
     document.body.removeChild(textarea);
     return ok;
   }
+}
+
+export async function copyOrderText(order: OrderTextInput): Promise<boolean> {
+  return copyTextToClipboard(formatOrderText(order));
+}
+
+export async function copyWhatsAppConfirmMessage(
+  order: OrderTextInput
+): Promise<boolean> {
+  return copyTextToClipboard(formatWhatsAppConfirmMessage(order));
 }
 
 export function printOrder(order: OrderTextInput): void {
