@@ -1,0 +1,47 @@
+.order-alerts-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.85rem;
+  margin: 0 1.5rem 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--warn) 45%, var(--border));
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--warn) 12%, var(--surface));
+}
+
+.order-alerts-banner__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--warn);
+}
+
+.order-alerts-banner__detail,
+.order-alerts-banner__stale,
+.order-alerts-banner__feedback {
+  margin: 0.25rem 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.order-alerts-banner__detail strong {
+  color: var(--text);
+}
+
+.order-alerts-banner__stale {
+  color: var(--error);
+}
+
+.order-alerts-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .order-alerts-banner {
+    margin: 0 1rem 0;
+  }
+}

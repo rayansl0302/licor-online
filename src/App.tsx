@@ -9,7 +9,7 @@ import {
   subscribeOrders,
   toggleOrderDone,
 } from "./lib/orders";
-import { isOrderPending } from "./utils/orderStatus";
+import { useOrderAlerts } from "./hooks/useOrderAlerts";
 import { LoginPage } from "./pages/LoginPage";
 import { CatalogoPage } from "./pages/CatalogoPage";
 import { NovoPedidoPage } from "./pages/NovoPedidoPage";
@@ -28,7 +28,12 @@ export function App() {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   const onSecretRoute = isSecretRoute(pathname);
-  const pendingCount = orders.filter(isOrderPending).length;
+
+  const orderAlerts = useOrderAlerts({
+    orders,
+    view,
+    enabled: Boolean(user && onSecretRoute),
+  });
 
   useEffect(() => {
     const onPopState = () => setPathname(window.location.pathname);
@@ -73,11 +78,12 @@ export function App() {
 
   const handleSaved = useCallback((message: string) => {
     setSaveMessage(message);
-    setOrderStatus("todos");
+    setOrderStatus("pendente");
     setView("pedidos");
   }, []);
 
   const handleGoToPedidos = useCallback(() => {
+    setOrderStatus("pendente");
     setView("pedidos");
   }, []);
 
@@ -137,7 +143,15 @@ export function App() {
       view={view}
       onViewChange={setView}
       userEmail={user.email ?? "Usuário"}
-      pendingCount={pendingCount}
+      pendingCount={orderAlerts.pendingCount}
+      highlightPendingBadge={orderAlerts.highlightBadge}
+      showPendingBanner={orderAlerts.showBanner}
+      stalePendingCount={orderAlerts.staleCount}
+      latestPendingCliente={orderAlerts.latestPendingCliente}
+      notificationsSupported={orderAlerts.notificationsSupported}
+      notificationPermission={orderAlerts.notificationPermission}
+      onViewPendingPedidos={handleGoToPedidos}
+      onRequestNotifications={orderAlerts.requestNotifications}
       onLogout={handleLogout}
     >
       {ordersError && (

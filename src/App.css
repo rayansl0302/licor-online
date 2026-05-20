@@ -665,6 +665,36 @@
   background: color-mix(in srgb, var(--brand-color) 22%, var(--bg-elevated));
 }
 
+.filter-tab__count {
+  margin-left: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: var(--warn);
+  color: #1a1208;
+}
+
+.orders-panel__pending-hint {
+  margin: 0 0 0.85rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.orders-panel__pending-link {
+  margin-left: 0.35rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.orders-panel__stale-hint {
+  margin-bottom: 0.85rem;
+}
+
 .status-legend {
   display: flex;
   flex-wrap: wrap;

@@ -116,6 +116,20 @@
   padding: 0 0.3rem;
 }
 
+.sidebar__badge--pulse {
+  animation: pending-badge-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pending-badge-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
 .sidebar__footer {
   padding-top: 1rem;
   border-top: 1px solid var(--border);

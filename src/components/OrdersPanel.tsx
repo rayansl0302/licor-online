@@ -2,6 +2,12 @@ import { useState } from "react";
 import { formatCurrency, formatDate } from "../utils/format";
 import { copyOrderText, printOrder } from "../utils/orderText";
 import {
+  formatPendingCountLabel,
+  formatStalePendingLabel,
+  getPendingOrders,
+  getStalePendingOrders,
+} from "../utils/orderAlerts";
+import {
   filterOrdersByStatus,
   getOrderSituation,
   ORDER_SITUATION_LABELS,
@@ -36,6 +42,9 @@ export function OrdersPanel({
 }: OrdersPanelProps) {
   const [feedback, setFeedback] = useState<string | null>(null);
   const filtered = filterOrdersByStatus(orders, status);
+  const pendingOrders = getPendingOrders(orders);
+  const pendingCount = pendingOrders.length;
+  const staleCount = getStalePendingOrders(orders).length;
 
   const handleCopy = async (order: Order) => {
     const ok = await copyOrderText({
@@ -87,10 +96,32 @@ export function OrdersPanel({
               onClick={() => onStatusChange(value)}
             >
               {label}
+              {value === "pendente" && pendingCount > 0 && (
+                <span className="filter-tab__count">{pendingCount}</span>
+              )}
             </button>
           ))}
         </div>
       </div>
+
+      {!loading && pendingCount > 0 && status !== "pendente" && (
+        <p className="orders-panel__pending-hint" role="status">
+          {formatPendingCountLabel(pendingCount)}.
+          <button
+            type="button"
+            className="orders-panel__pending-link"
+            onClick={() => onStatusChange("pendente")}
+          >
+            Ver pendentes
+          </button>
+        </p>
+      )}
+
+      {!loading && pendingCount > 0 && status === "pendente" && staleCount > 0 && (
+        <p className="alert alert--warn orders-panel__stale-hint" role="status">
+          {formatStalePendingLabel(staleCount)}
+        </p>
+      )}
 
       {feedback && (
         <p className="alert alert--success" role="status">

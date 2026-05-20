@@ -1,5 +1,7 @@
 import { useState, type ReactNode } from "react";
+import { OrderAlertsBanner } from "../components/OrderAlertsBanner";
 import { useMarkup } from "../contexts/MarkupContext";
+import type { NotificationPermissionState } from "../lib/orderNotifications";
 import { formatMarkupLabel } from "../utils/pricing";
 import type { AppView } from "../types";
 import "./AppLayout.css";
@@ -22,6 +24,14 @@ interface AppLayoutProps {
   onViewChange: (view: AppView) => void;
   userEmail: string;
   pendingCount: number;
+  highlightPendingBadge: boolean;
+  showPendingBanner: boolean;
+  stalePendingCount: number;
+  latestPendingCliente: string | null;
+  notificationsSupported: boolean;
+  notificationPermission: NotificationPermissionState;
+  onViewPendingPedidos: () => void;
+  onRequestNotifications: () => Promise<NotificationPermissionState>;
   onLogout: () => void;
   children: ReactNode;
 }
@@ -31,6 +41,14 @@ export function AppLayout({
   onViewChange,
   userEmail,
   pendingCount,
+  highlightPendingBadge,
+  showPendingBanner,
+  stalePendingCount,
+  latestPendingCliente,
+  notificationsSupported,
+  notificationPermission,
+  onViewPendingPedidos,
+  onRequestNotifications,
   onLogout,
   children,
 }: AppLayoutProps) {
@@ -84,7 +102,11 @@ export function AppLayout({
               </span>
               {item.label}
               {item.id === "pedidos" && pendingCount > 0 && (
-                <span className="sidebar__badge">{pendingCount}</span>
+                <span
+                  className={`sidebar__badge ${highlightPendingBadge ? "sidebar__badge--pulse" : ""}`}
+                >
+                  {pendingCount}
+                </span>
               )}
             </button>
           ))}
@@ -111,8 +133,24 @@ export function AppLayout({
           </h1>
           <p className="topbar__meta">
             Lucro {formatMarkupLabel(markupPercent)} · histórico na nuvem
+            {pendingCount > 0 && view !== "pedidos" && (
+              <> · {pendingCount} pendente{pendingCount > 1 ? "s" : ""}</>
+            )}
           </p>
         </header>
+
+        {showPendingBanner && (
+          <OrderAlertsBanner
+            pendingCount={pendingCount}
+            staleCount={stalePendingCount}
+            latestPendingCliente={latestPendingCliente}
+            notificationsSupported={notificationsSupported}
+            notificationPermission={notificationPermission}
+            onViewPedidos={onViewPendingPedidos}
+            onRequestNotifications={onRequestNotifications}
+          />
+        )}
+
         <div className="app-shell__content">{children}</div>
       </div>
     </div>
