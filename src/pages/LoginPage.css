@@ -1,0 +1,94 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  box-shadow: var(--shadow);
+}
+
+.login-card__eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.login-card__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.login-card__subtitle {
+  margin: 0.5rem 0 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.login-form__submit {
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.login-card__hint {
+  margin: 1.25rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-field__input {
+  padding-right: 4.5rem;
+}
+
+.password-field__toggle {
+  position: absolute;
+  right: 0.5rem;
+  padding: 0.35rem 0.55rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.password-field__toggle:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.remember-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.remember-field__checkbox {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--accent);
+  cursor: pointer;
+}

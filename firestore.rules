@@ -1,0 +1,32 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Só entra se estiver logado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Admin: e-mail deve conter "rayan" (maiúsc/minúsc)
+    // Ex.: rayan@gmail.com, contato.rayan@empresa.com
+    function isAdmin() {
+      return isAuthenticated()
+        && request.auth.token.email != null
+        && request.auth.token.email.matches('.*[rR][aA][yY][aA][nN].*');
+    }
+
+    // Pedidos — somente admin
+    match /pedidos/{pedidoId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource.data.criadoPor == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // Bloqueia qualquer outra coleção
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
