@@ -1,0 +1,10 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/licor-rayan-painel", "destination": "/index.html" },
+    { "source": "/licor-rayan-painel/", "destination": "/index.html" },
+    { "source": "/((?!assets/).*)", "destination": "/index.html" }
+  ]
+}

@@ -1,13 +1,23 @@
 import { initializeApp } from "firebase/app";
 import { initializeFirestore, memoryLocalCache } from "firebase/firestore";
 
+function env(key: keyof ImportMetaEnv): string {
+  const value = import.meta.env[key];
+  if (!value) {
+    throw new Error(
+      `Variável ${key} ausente. Crie .env (local) ou configure na Vercel → Settings → Environment Variables.`
+    );
+  }
+  return value;
+}
+
 const firebaseConfig = {
-  apiKey: "AIzaSyBBuqORNE_V3yNRrw607wcLKQHyYR0lNXc",
-  authDomain: "licor-online.firebaseapp.com",
-  projectId: "licor-online",
-  storageBucket: "licor-online.firebasestorage.app",
-  messagingSenderId: "781062229474",
-  appId: "1:781062229474:web:87dec70b60631892f47dbb",
+  apiKey: env("VITE_FIREBASE_API_KEY"),
+  authDomain: env("VITE_FIREBASE_AUTH_DOMAIN"),
+  projectId: env("VITE_FIREBASE_PROJECT_ID"),
+  storageBucket: env("VITE_FIREBASE_STORAGE_BUCKET"),
+  messagingSenderId: env("VITE_FIREBASE_MESSAGING_SENDER_ID"),
+  appId: env("VITE_FIREBASE_APP_ID"),
 };
 
 export const app = initializeApp(firebaseConfig);

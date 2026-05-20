@@ -62,10 +62,50 @@ service cloud.firestore {
 
 **Build → Firestore Database → Criar banco** (se ainda não existir).
 
+## Variáveis de ambiente
+
+O Vite só expõe variáveis com prefixo **`VITE_`**.
+
+| Arquivo | Uso |
+|---------|-----|
+| `.env.example` | Modelo (vai no Git) |
+| `.env` | Local — **não commitar** (já no `.gitignore`) |
+
+Variáveis (pegue no Firebase Console → Configurações do projeto → Seus apps):
+
+```
+VITE_FIREBASE_API_KEY
+VITE_FIREBASE_AUTH_DOMAIN
+VITE_FIREBASE_PROJECT_ID
+VITE_FIREBASE_STORAGE_BUCKET
+VITE_FIREBASE_MESSAGING_SENDER_ID
+VITE_FIREBASE_APP_ID
+```
+
+Local:
+
+```bash
+cp .env.example .env
+# preencha os valores no .env
+```
+
+## Deploy na Vercel
+
+1. Importe o repo [licor-online](https://github.com/rayansl0302/licor-online)
+2. **Settings → Environment Variables** — cadastre as 6 variáveis `VITE_FIREBASE_*` (marque **Production**, **Preview** e **Development**)
+3. Confirme: Build `npm run build` · Output `dist` (o `vercel.json` já define isso)
+4. **Redeploy** após salvar as variáveis (Deployments → ⋯ → Redeploy)
+5. Firebase → **Authentication → Settings → Authorized domains** → adicione `licor-online.vercel.app`
+
+URL: `https://licor-online.vercel.app/licor-rayan-painel`
+
+Se aparecer **404 NOT_FOUND**, quase sempre falta o `vercel.json` no deploy ou as variáveis `VITE_*` no build.
+
 ## Como rodar
 
 ```bash
 npm install
+cp .env.example .env   # se ainda não tiver .env
 npm run dev
 ```
 
