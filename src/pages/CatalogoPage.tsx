@@ -98,6 +98,7 @@ export function CatalogoPage() {
           <button type="button" className="btn btn--primary" onClick={handlePrint}>
             Imprimir catálogo
           </button>
+          <CatalogImportPanel onImported={setFeedback} />
         </div>
 
         {feedback && (
@@ -105,8 +106,6 @@ export function CatalogoPage() {
             {feedback}
           </p>
         )}
-
-        <CatalogImportPanel />
       </section>
 
       <section className="catalog-section">
