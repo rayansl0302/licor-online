@@ -3,6 +3,7 @@ import { BrandTabs } from "../components/BrandTabs";
 import { CartPanel } from "../components/CartPanel";
 import { OrderPastePanel } from "../components/OrderPastePanel";
 import { ProductCatalog } from "../components/ProductCatalog";
+import { useCatalog } from "../contexts/CatalogContext";
 import { useMarkup } from "../contexts/MarkupContext";
 import { usePix } from "../contexts/PixContext";
 import { getCatalogForBrand } from "../data/catalog";
@@ -29,14 +30,15 @@ export function NovoPedidoPage({ onSaved, onGoToPedidos }: NovoPedidoPageProps) 
   const [saving, setSaving] = useState(false);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
+  const { brands } = useCatalog();
   const { markupPercent } = useMarkup();
   const { pixKey, pixBank, pixHolderName } = usePix();
   const cart = useCart();
   const products = useMemo(
-    () => getCatalogForBrand(brandId, markupPercent),
-    [brandId, markupPercent]
+    () => getCatalogForBrand(brands, brandId, markupPercent),
+    [brands, brandId, markupPercent]
   );
-  const brand = getBrandById(brandId);
+  const brand = getBrandById(brands, brandId);
 
   useEffect(() => {
     document.documentElement.style.setProperty(
@@ -48,9 +50,9 @@ export function NovoPedidoPage({ onSaved, onGoToPedidos }: NovoPedidoPageProps) 
   const marcaLabel = useMemo(
     () =>
       cart.items.length > 0
-        ? getMarcaLabelFromItems(cart.items)
+        ? getMarcaLabelFromItems(cart.items, brands)
         : { marcaNome: brand?.nome },
-    [cart.items, brand?.nome]
+    [cart.items, brand?.nome, brands]
   );
 
   const handleParseOrder = useCallback(
@@ -108,7 +110,7 @@ export function NovoPedidoPage({ onSaved, onGoToPedidos }: NovoPedidoPageProps) 
   const handleSave = useCallback(async () => {
     if (cart.items.length === 0 || !clienteNome.trim()) return;
 
-    const { marcaId: mid, marcaNome } = getMarcaLabelFromItems(cart.items);
+    const { marcaId: mid, marcaNome } = getMarcaLabelFromItems(cart.items, brands);
 
     setSaving(true);
     setActionMessage(null);
@@ -140,6 +142,7 @@ export function NovoPedidoPage({ onSaved, onGoToPedidos }: NovoPedidoPageProps) 
     observacao,
     onSaved,
     onGoToPedidos,
+    brands,
   ]);
 
   return (

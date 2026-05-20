@@ -1,6 +1,6 @@
-import { BRANDS, getProductsForBrand } from "./brands";
+import { getProductsForBrand as getProducts } from "./brands";
 import { applyMarkup } from "../utils/pricing";
-import type { BrandId, Product } from "../types";
+import type { Brand, BrandId, Product } from "../types";
 
 export function withMarkup(
   products: Product[],
@@ -13,12 +13,18 @@ export function withMarkup(
 }
 
 export function getCatalogForBrand(
+  brands: Brand[],
   brandId: BrandId,
   markupPercent: number
 ): Product[] {
-  return withMarkup(getProductsForBrand(brandId), markupPercent);
+  return withMarkup(getProducts(brands, brandId), markupPercent);
 }
 
-export function getAllCatalogProducts(markupPercent: number): Product[] {
-  return BRANDS.flatMap((brand) => getCatalogForBrand(brand.id, markupPercent));
+export function getAllCatalogProducts(
+  brands: Brand[],
+  markupPercent: number
+): Product[] {
+  return brands.flatMap((brand) =>
+    getCatalogForBrand(brands, brand.id, markupPercent)
+  );
 }

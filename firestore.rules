@@ -29,6 +29,11 @@ service cloud.firestore {
       allow read, write: if isAdmin() && request.auth.uid == userId;
     }
 
+    // Catálogo de licores (preços base e sabores)
+    match /config/catalogo {
+      allow read, write: if isAdmin();
+    }
+
     // Bloqueia qualquer outra coleção
     match /{document=**} {
       allow read, write: if false;

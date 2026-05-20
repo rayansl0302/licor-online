@@ -1,3 +1,4 @@
+import { useCatalog } from "../contexts/CatalogContext";
 import { getBrandById } from "../data/brands";
 import { formatCurrency } from "../utils/format";
 import { formatMarkupLabel } from "../utils/pricing";
@@ -20,7 +21,8 @@ export function ProductCatalog({
   search,
   readOnly = false,
 }: ProductCatalogProps) {
-  const brand = getBrandById(brandId);
+  const { brands } = useCatalog();
+  const brand = getBrandById(brands, brandId);
   if (!brand) return null;
 
   const term = search.trim().toLowerCase();

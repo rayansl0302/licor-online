@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { BrandTabs } from "../components/BrandTabs";
+import { CatalogEditor } from "../components/CatalogEditor";
+import { CatalogImportPanel } from "../components/CatalogImportPanel";
 import { ProductCatalog } from "../components/ProductCatalog";
+import { useCatalog } from "../contexts/CatalogContext";
 import { useMarkup } from "../contexts/MarkupContext";
 import { getCatalogForBrand } from "../data/catalog";
 import {
@@ -12,23 +15,25 @@ import { formatMarkupLabel } from "../utils/pricing";
 import type { BrandId } from "../types";
 
 export function CatalogoPage() {
+  const { brands } = useCatalog();
   const { markupPercent, setMarkupPercent } = useMarkup();
   const [brandId, setBrandId] = useState<BrandId>("roque-pinto");
   const [printScope, setPrintScope] = useState<CatalogPrintScope>("todas");
+  const [editMode, setEditMode] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const products = useMemo(
-    () => getCatalogForBrand(brandId, markupPercent),
-    [brandId, markupPercent]
+    () => getCatalogForBrand(brands, brandId, markupPercent),
+    [brands, brandId, markupPercent]
   );
 
   const handleCopy = async () => {
-    const ok = await copyCatalogText(printScope, markupPercent);
+    const ok = await copyCatalogText(brands, printScope, markupPercent);
     setFeedback(ok ? "Catálogo copiado! Cole no WhatsApp." : "Não foi possível copiar.");
   };
 
   const handlePrint = () => {
-    printCatalog(printScope, markupPercent);
+    printCatalog(brands, printScope, markupPercent);
     setFeedback("Abrindo impressão do catálogo…");
   };
 
@@ -37,7 +42,7 @@ export function CatalogoPage() {
       <header className="page-header">
         <h2 className="page-header__title">Catálogo para WhatsApp</h2>
         <p className="page-header__subtitle">
-          Ajuste o lucro, visualize os preços e imprima ou copie para enviar.
+          Ajuste o lucro, edite sabores e preços base, copie ou imprima para enviar.
         </p>
       </header>
 
@@ -78,9 +83,11 @@ export function CatalogoPage() {
             }
           >
             <option value="todas">Todas as marcas</option>
-            <option value="roque-pinto">Licores Roque Pinto</option>
-            <option value="arraia">Arraiá do Quiabo</option>
-            <option value="cachoeira-colonial">Cachoeira Colonial</option>
+            {brands.map((brand) => (
+              <option key={brand.id} value={brand.id}>
+                {brand.nome}
+              </option>
+            ))}
           </select>
         </label>
 
@@ -98,19 +105,36 @@ export function CatalogoPage() {
             {feedback}
           </p>
         )}
+
+        <CatalogImportPanel />
       </section>
 
       <section className="catalog-section">
-        <h3 className="section-title">Pré-visualização</h3>
+        <div className="catalog-section__head">
+          <h3 className="section-title">Pré-visualização</h3>
+          <button
+            type="button"
+            className={`btn btn--small ${editMode ? "btn--primary" : "btn--secondary"}`}
+            onClick={() => setEditMode((prev) => !prev)}
+          >
+            {editMode ? "Ver catálogo" : "Editar catálogo"}
+          </button>
+        </div>
+
         <BrandTabs activeId={brandId} onChange={setBrandId} />
-        <ProductCatalog
-          brandId={brandId}
-          products={products}
-          markupPercent={markupPercent}
-          onAdd={() => {}}
-          search=""
-          readOnly
-        />
+
+        {editMode ? (
+          <CatalogEditor brandId={brandId} />
+        ) : (
+          <ProductCatalog
+            brandId={brandId}
+            products={products}
+            markupPercent={markupPercent}
+            onAdd={() => {}}
+            search=""
+            readOnly
+          />
+        )}
       </section>
     </div>
   );

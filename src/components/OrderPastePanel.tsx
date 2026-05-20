@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useCatalog } from "../contexts/CatalogContext";
 import { useMarkup } from "../contexts/MarkupContext";
 import { formatCurrency } from "../utils/format";
 import { formatMarkupLabel } from "../utils/pricing";
@@ -17,13 +18,14 @@ const EXAMPLE = `Leila Maria:
 1 lá creme Roque Pinto`;
 
 export function OrderPastePanel({ onParse }: OrderPastePanelProps) {
+  const { brands } = useCatalog();
   const { markupPercent } = useMarkup();
   const [text, setText] = useState("");
   const [preview, setPreview] = useState<ParseOrderResult | null>(null);
   const [previewCliente, setPreviewCliente] = useState("");
 
   const handleInterpret = () => {
-    const result = parseOrderText(text, markupPercent);
+    const result = parseOrderText(text, brands, markupPercent);
     setPreview(result);
     setPreviewCliente(result.clienteNome);
   };

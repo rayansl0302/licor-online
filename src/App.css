@@ -139,6 +139,18 @@
   box-shadow: var(--shadow);
 }
 
+.catalog-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.catalog-section__head .section-title {
+  margin: 0;
+}
+
 .brand-tabs {
   display: flex;
   flex-direction: column;

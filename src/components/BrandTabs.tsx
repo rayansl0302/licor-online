@@ -1,5 +1,5 @@
+import { useCatalog } from "../contexts/CatalogContext";
 import type { CSSProperties } from "react";
-import { BRANDS } from "../data/brands";
 import type { BrandId } from "../types";
 
 interface BrandTabsProps {
@@ -8,9 +8,11 @@ interface BrandTabsProps {
 }
 
 export function BrandTabs({ activeId, onChange }: BrandTabsProps) {
+  const { brands } = useCatalog();
+
   return (
     <div className="brand-tabs" role="tablist" aria-label="Marcas de licor">
-      {BRANDS.map((brand) => (
+      {brands.map((brand) => (
         <button
           key={brand.id}
           type="button"

@@ -1,12 +1,13 @@
 import { getCatalogForBrand } from "../data/catalog";
-import type { BrandId, CartItem } from "../types";
+import type { Brand, BrandId, CartItem } from "../types";
 
 export function syncCartItemsWithCatalog(
   items: CartItem[],
+  brands: Brand[],
   brandId: BrandId,
   markupPercent: number
 ): CartItem[] {
-  const catalog = getCatalogForBrand(brandId, markupPercent);
+  const catalog = getCatalogForBrand(brands, brandId, markupPercent);
   const byId = new Map(catalog.map((product) => [product.id, product]));
 
   return items

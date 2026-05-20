@@ -1,4 +1,3 @@
-import { BRANDS } from "../data/brands";
 import { getCatalogForBrand } from "../data/catalog";
 import { formatCurrency } from "./format";
 import type { Brand, BrandId } from "../types";
@@ -18,14 +17,16 @@ function formatBrandCatalogHeading(brand: Brand): string {
   return `${brand.nome} (de ${cidade})`;
 }
 
-function buildCatalogSections(scope: CatalogPrintScope, markupPercent: number) {
-  const brands =
-    scope === "todas"
-      ? BRANDS
-      : BRANDS.filter((b) => b.id === scope);
+function buildCatalogSections(
+  brands: Brand[],
+  scope: CatalogPrintScope,
+  markupPercent: number
+) {
+  const selected =
+    scope === "todas" ? brands : brands.filter((b) => b.id === scope);
 
-  return brands.map((brand) => {
-    const products = getCatalogForBrand(brand.id, markupPercent);
+  return selected.map((brand) => {
+    const products = getCatalogForBrand(brands, brand.id, markupPercent);
     const groups = brand.categorias.map((cat) => ({
       nome: cat.nome,
       items: products.filter((p) => p.categoria === cat.nome),
@@ -36,10 +37,11 @@ function buildCatalogSections(scope: CatalogPrintScope, markupPercent: number) {
 }
 
 export function formatCatalogText(
+  brands: Brand[],
   scope: CatalogPrintScope,
   markupPercent: number
 ): string {
-  const sections = buildCatalogSections(scope, markupPercent);
+  const sections = buildCatalogSections(brands, scope, markupPercent);
   const lines: string[] = ["CATÁLOGO DE LICORES", ""];
 
   for (const { brand, groups } of sections) {
@@ -59,10 +61,11 @@ export function formatCatalogText(
 }
 
 export async function copyCatalogText(
+  brands: Brand[],
   scope: CatalogPrintScope,
   markupPercent: number
 ): Promise<boolean> {
-  const text = formatCatalogText(scope, markupPercent);
+  const text = formatCatalogText(brands, scope, markupPercent);
   try {
     await navigator.clipboard.writeText(text);
     return true;
@@ -81,10 +84,11 @@ export async function copyCatalogText(
 }
 
 export function printCatalog(
+  brands: Brand[],
   scope: CatalogPrintScope,
   markupPercent: number
 ): void {
-  const sections = buildCatalogSections(scope, markupPercent);
+  const sections = buildCatalogSections(brands, scope, markupPercent);
 
   const body = sections
     .map(({ brand, groups }) => {

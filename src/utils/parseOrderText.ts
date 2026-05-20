@@ -1,6 +1,5 @@
 import { getAllCatalogProducts } from "../data/catalog";
-import { BRANDS } from "../data/brands";
-import type { BrandId, CartItem, Product } from "../types";
+import type { Brand, BrandId, CartItem, Product } from "../types";
 
 export interface ParseOrderResult {
   clienteNome: string;
@@ -81,7 +80,8 @@ function resolveProductName(raw: string): string {
 function findProduct(
   productPart: string,
   brandId: BrandId,
-  catalog: Product[]
+  catalog: Product[],
+  brands: Brand[]
 ): Product | null {
   const resolved = resolveProductName(productPart);
   const brandProducts = catalog.filter((p) => p.id.startsWith(`${brandId}-`));
@@ -117,6 +117,7 @@ function findProduct(
 function parseItemLine(
   line: string,
   catalog: Product[],
+  brands: Brand[],
   erros: string[],
   avisos: string[]
 ): CartItem | null {
@@ -139,10 +140,10 @@ function parseItemLine(
     return null;
   }
 
-  const product = findProduct(rest, brandId, catalog);
+  const product = findProduct(rest, brandId, catalog, brands);
 
   if (!product) {
-    const brandName = BRANDS.find((b) => b.id === brandId)?.nome ?? brandId;
+    const brandName = brands.find((b) => b.id === brandId)?.nome ?? brandId;
     erros.push(`Produto não encontrado: "${rest}" (${brandName})`);
     return null;
   }
@@ -194,9 +195,10 @@ function mergeCartItems(items: CartItem[]): CartItem[] {
 
 export function parseOrderText(
   text: string,
+  brands: Brand[],
   markupPercent: number
 ): ParseOrderResult {
-  const catalog = getAllCatalogProducts(markupPercent);
+  const catalog = getAllCatalogProducts(brands, markupPercent);
   const erros: string[] = [];
   const avisos: string[] = [];
   let clienteNome = "";
@@ -209,13 +211,13 @@ export function parseOrderText(
     if (clientLine) {
       clienteNome = clientLine.clienteNome;
       if (clientLine.itemPart) {
-        const item = parseItemLine(clientLine.itemPart, catalog, erros, avisos);
+        const item = parseItemLine(clientLine.itemPart, catalog, brands, erros, avisos);
         if (item) parsedItems.push(item);
       }
       continue;
     }
 
-    const item = parseItemLine(line, catalog, erros, avisos);
+    const item = parseItemLine(line, catalog, brands, erros, avisos);
     if (item) parsedItems.push(item);
   }
 
@@ -231,7 +233,10 @@ export function parseOrderText(
   };
 }
 
-export function getMarcaLabelFromItems(itens: CartItem[]): {
+export function getMarcaLabelFromItems(
+  itens: CartItem[],
+  brands: Brand[]
+): {
   marcaId: BrandId;
   marcaNome: string;
 } {
@@ -245,7 +250,7 @@ export function getMarcaLabelFromItems(itens: CartItem[]): {
   }
 
   const names = [...brandIds].map(
-    (id) => BRANDS.find((b) => b.id === id)?.nome ?? id
+    (id) => brands.find((b) => b.id === id)?.nome ?? id
   );
 
   if (names.length === 0) {

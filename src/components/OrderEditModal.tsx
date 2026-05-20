@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CartPanel } from "./CartPanel";
 import { ProductCatalog } from "./ProductCatalog";
+import { useCatalog } from "../contexts/CatalogContext";
 import { useMarkup } from "../contexts/MarkupContext";
 import { usePix } from "../contexts/PixContext";
 import { getCatalogForBrand } from "../data/catalog";
@@ -20,6 +21,7 @@ interface OrderEditModalProps {
 }
 
 export function OrderEditModal({ order, onClose, onSaved }: OrderEditModalProps) {
+  const { brands } = useCatalog();
   const { markupPercent } = useMarkup();
   const { pixKey, pixBank, pixHolderName } = usePix();
   const cart = useCart();
@@ -32,10 +34,10 @@ export function OrderEditModal({ order, onClose, onSaved }: OrderEditModalProps)
 
   const brandId = order?.marcaId ?? "roque-pinto";
   const products = useMemo(
-    () => getCatalogForBrand(brandId, markupPercent),
-    [brandId, markupPercent]
+    () => getCatalogForBrand(brands, brandId, markupPercent),
+    [brands, brandId, markupPercent]
   );
-  const brand = getBrandById(brandId);
+  const brand = getBrandById(brands, brandId);
 
   useEffect(() => {
     if (!order) return;
@@ -45,9 +47,9 @@ export function OrderEditModal({ order, onClose, onSaved }: OrderEditModalProps)
     setSearch("");
     setActionMessage(null);
     cart.setCartItems(
-      syncCartItemsWithCatalog(order.itens, order.marcaId, markupPercent)
+      syncCartItemsWithCatalog(order.itens, brands, order.marcaId, markupPercent)
     );
-  }, [order?.id, order?.clienteNome, order?.observacao, order?.itens, order?.marcaId, markupPercent]);
+  }, [order?.id, order?.clienteNome, order?.observacao, order?.itens, order?.marcaId, markupPercent, brands]);
 
   useEffect(() => {
     if (!order) return;
@@ -76,9 +78,9 @@ export function OrderEditModal({ order, onClose, onSaved }: OrderEditModalProps)
   const marcaLabel = useMemo(
     () =>
       cart.items.length > 0
-        ? getMarcaLabelFromItems(cart.items)
+        ? getMarcaLabelFromItems(cart.items, brands)
         : { marcaId: brandId, marcaNome: order?.marcaNome ?? brand?.nome ?? "" },
-    [cart.items, brandId, order?.marcaNome, brand?.nome]
+    [cart.items, brandId, order?.marcaNome, brand?.nome, brands]
   );
 
   const orderSnapshot = useMemo(
@@ -120,7 +122,7 @@ export function OrderEditModal({ order, onClose, onSaved }: OrderEditModalProps)
   const handleSave = useCallback(async () => {
     if (!order || cart.items.length === 0 || !clienteNome.trim()) return;
 
-    const { marcaId: mid, marcaNome } = getMarcaLabelFromItems(cart.items);
+    const { marcaId: mid, marcaNome } = getMarcaLabelFromItems(cart.items, brands);
 
     setSaving(true);
     setActionMessage(null);
