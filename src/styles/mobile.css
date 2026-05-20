@@ -76,13 +76,6 @@ textarea {
     flex-shrink: 0;
   }
 
-  .sidebar__pix-fields {
-    max-height: 38vh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-right: 0.15rem;
-  }
-
   .orders-panel {
     padding: 1rem;
   }
