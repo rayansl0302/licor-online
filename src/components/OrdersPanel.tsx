@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePix } from "../contexts/PixContext";
 import { formatCurrency, formatDate } from "../utils/format";
 import { copyOrderText, printOrder } from "../utils/orderText";
 import {
@@ -40,6 +41,7 @@ export function OrdersPanel({
   onCancel,
   onReopen,
 }: OrdersPanelProps) {
+  const { pixKey, pixBank, pixHolderName } = usePix();
   const [feedback, setFeedback] = useState<string | null>(null);
   const filtered = filterOrdersByStatus(orders, status);
   const pendingOrders = getPendingOrders(orders);
@@ -53,6 +55,11 @@ export function OrdersPanel({
       itens: order.itens,
       total: order.total,
       observacao: order.observacao,
+      pix: {
+        key: pixKey,
+        bank: pixBank,
+        holderName: pixHolderName,
+      },
     });
     setFeedback(ok ? "Pedido copiado!" : "Não foi possível copiar.");
   };
@@ -64,6 +71,11 @@ export function OrdersPanel({
       itens: order.itens,
       total: order.total,
       observacao: order.observacao,
+      pix: {
+        key: pixKey,
+        bank: pixBank,
+        holderName: pixHolderName,
+      },
     });
   };
 

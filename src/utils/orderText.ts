@@ -1,12 +1,56 @@
 import { formatCurrency } from "./format";
 import type { CartItem } from "../types";
 
+export interface OrderPixInfo {
+  key?: string;
+  bank?: string;
+  holderName?: string;
+}
+
 export interface OrderTextInput {
   clienteNome: string;
   marcaNome?: string;
   itens: CartItem[];
   total: number;
   observacao?: string;
+  pix?: OrderPixInfo;
+}
+
+function hasPixInfo(pix: OrderPixInfo | undefined): boolean {
+  if (!pix) return false;
+  return Boolean(pix.key?.trim() || pix.bank?.trim() || pix.holderName?.trim());
+}
+
+function appendPixLines(lines: string[], pix: OrderPixInfo | undefined) {
+  if (!hasPixInfo(pix)) return;
+
+  lines.push("");
+
+  const holderName = pix?.holderName?.trim();
+  const bank = pix?.bank?.trim();
+  const key = pix?.key?.trim();
+
+  if (holderName) lines.push(`Titular: ${holderName}`);
+  if (bank) lines.push(`Banco: ${bank}`);
+  if (key) lines.push(`Chave PIX: ${key}`);
+}
+
+function formatPixHtml(pix: OrderPixInfo | undefined): string {
+  if (!hasPixInfo(pix)) return "";
+
+  const parts: string[] = [];
+
+  if (pix?.holderName?.trim()) {
+    parts.push(`<strong>Titular:</strong> ${pix.holderName.trim()}`);
+  }
+  if (pix?.bank?.trim()) {
+    parts.push(`<strong>Banco:</strong> ${pix.bank.trim()}`);
+  }
+  if (pix?.key?.trim()) {
+    parts.push(`<strong>Chave PIX:</strong> ${pix.key.trim()}`);
+  }
+
+  return `<p class="pix">${parts.join("<br />")}</p>`;
 }
 
 export function formatOrderText(order: OrderTextInput): string {
@@ -27,6 +71,8 @@ export function formatOrderText(order: OrderTextInput): string {
   if (order.observacao?.trim()) {
     lines.push(`Obs: ${order.observacao.trim()}`);
   }
+
+  appendPixLines(lines, order.pix);
 
   return lines.join("\n");
 }
@@ -73,6 +119,7 @@ export function printOrder(order: OrderTextInput): void {
     .right { text-align: right; }
     .total { margin-top: 16px; font-size: 1.25rem; font-weight: 700; text-align: right; }
     .obs { margin-top: 12px; font-style: italic; color: #444; }
+    .pix { margin-top: 16px; padding: 12px; background: #f5f5f5; border-radius: 8px; line-height: 1.5; }
     @media print { body { padding: 12px; } }
   </style>
 </head>
@@ -85,6 +132,7 @@ export function printOrder(order: OrderTextInput): void {
   </table>
   <p class="total">Total: ${formatCurrency(order.total)}</p>
   ${order.observacao?.trim() ? `<p class="obs">Obs: ${order.observacao.trim()}</p>` : ""}
+  ${formatPixHtml(order.pix)}
   <script>window.onload = function() { window.print(); window.onafterprint = function() { window.close(); }; };</script>
 </body>
 </html>`;

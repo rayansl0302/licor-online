@@ -4,6 +4,7 @@ import { CartPanel } from "../components/CartPanel";
 import { OrderPastePanel } from "../components/OrderPastePanel";
 import { ProductCatalog } from "../components/ProductCatalog";
 import { useMarkup } from "../contexts/MarkupContext";
+import { usePix } from "../contexts/PixContext";
 import { getCatalogForBrand } from "../data/catalog";
 import { getBrandById } from "../data/brands";
 import { useCart } from "../hooks/useCart";
@@ -29,6 +30,7 @@ export function NovoPedidoPage({ onSaved, onGoToPedidos }: NovoPedidoPageProps) 
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
   const { markupPercent } = useMarkup();
+  const { pixKey, pixBank, pixHolderName } = usePix();
   const cart = useCart();
   const products = useMemo(
     () => getCatalogForBrand(brandId, markupPercent),
@@ -74,8 +76,22 @@ export function NovoPedidoPage({ onSaved, onGoToPedidos }: NovoPedidoPageProps) 
       itens: cart.items,
       total: cart.total,
       observacao,
+      pix: {
+        key: pixKey,
+        bank: pixBank,
+        holderName: pixHolderName,
+      },
     }),
-    [clienteNome, marcaLabel.marcaNome, cart.items, cart.total, observacao]
+    [
+      clienteNome,
+      marcaLabel.marcaNome,
+      cart.items,
+      cart.total,
+      observacao,
+      pixKey,
+      pixBank,
+      pixHolderName,
+    ]
   );
 
   const handleCopy = useCallback(async () => {

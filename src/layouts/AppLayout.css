@@ -135,6 +135,26 @@
   border-top: 1px solid var(--border);
 }
 
+.sidebar__pix-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+}
+
+.sidebar__pix-field {
+  margin: 0;
+}
+
+.sidebar__pix-field .field__label {
+  font-size: 0.72rem;
+}
+
+.sidebar__pix-field .field__input {
+  font-size: 0.82rem;
+  padding: 0.45rem 0.55rem;
+}
+
 .sidebar__user {
   margin: 0 0 0.65rem;
   font-size: 0.78rem;
@@ -295,7 +315,9 @@
 
 @media (max-width: 768px) {
   .sidebar-toggle {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .sidebar-overlay {
@@ -305,8 +327,11 @@
   .sidebar {
     position: fixed;
     left: 0;
+    top: 0;
+    height: 100dvh;
     transform: translateX(-100%);
     transition: transform 0.2s ease;
+    box-shadow: var(--shadow);
   }
 
   .sidebar--open {
@@ -314,10 +339,6 @@
   }
 
   .app-shell__main {
-    padding-top: 3rem;
-  }
-
-  .topbar {
-    padding-top: 0.75rem;
+    width: 100%;
   }
 }

@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from "react";
+import { IosInstallHint } from "../components/IosInstallHint";
 import { OrderAlertsBanner } from "../components/OrderAlertsBanner";
 import { useMarkup } from "../contexts/MarkupContext";
+import { usePix } from "../contexts/PixContext";
 import type { NotificationPermissionState } from "../lib/orderNotifications";
 import { formatMarkupLabel } from "../utils/pricing";
 import type { AppView } from "../types";
@@ -53,6 +55,8 @@ export function AppLayout({
   children,
 }: AppLayoutProps) {
   const { markupPercent } = useMarkup();
+  const { pixKey, pixBank, pixHolderName, setPixKey, setPixBank, setPixHolderName } =
+    usePix();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleNav = (next: AppView) => {
@@ -113,6 +117,41 @@ export function AppLayout({
         </nav>
 
         <div className="sidebar__footer">
+          <div className="sidebar__pix-fields">
+            <label className="field sidebar__pix-field">
+              <span className="field__label">Nome completo (titular)</span>
+              <input
+                type="text"
+                className="field__input"
+                value={pixHolderName}
+                onChange={(e) => setPixHolderName(e.target.value)}
+                placeholder="Nome de quem recebe o PIX"
+                autoComplete="name"
+              />
+            </label>
+            <label className="field sidebar__pix-field">
+              <span className="field__label">Banco</span>
+              <input
+                type="text"
+                className="field__input"
+                value={pixBank}
+                onChange={(e) => setPixBank(e.target.value)}
+                placeholder="Ex.: Nubank, Itaú"
+                autoComplete="off"
+              />
+            </label>
+            <label className="field sidebar__pix-field">
+              <span className="field__label">Chave PIX</span>
+              <input
+                type="text"
+                className="field__input"
+                value={pixKey}
+                onChange={(e) => setPixKey(e.target.value)}
+                placeholder="CPF, e-mail, telefone ou aleatória"
+                autoComplete="off"
+              />
+            </label>
+          </div>
           <p className="sidebar__user" title={userEmail}>
             {userEmail}
           </p>
@@ -138,6 +177,8 @@ export function AppLayout({
             )}
           </p>
         </header>
+
+        <IosInstallHint />
 
         {showPendingBanner && (
           <OrderAlertsBanner

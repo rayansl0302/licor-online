@@ -42,6 +42,17 @@
 
 @media (max-width: 768px) {
   .order-alerts-banner {
-    margin: 0 1rem 0;
+    margin: 0 1rem 0.65rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .order-alerts-banner__actions {
+    width: 100%;
+  }
+
+  .order-alerts-banner__actions .btn {
+    flex: 1;
+    min-width: 0;
   }
 }
