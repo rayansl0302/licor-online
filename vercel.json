@@ -5,9 +5,6 @@
   "rewrites": [
     { "source": "/licor-rayan-painel", "destination": "/index.html" },
     { "source": "/licor-rayan-painel/", "destination": "/index.html" },
-    {
-      "source": "/((?!assets/|sw\\.js$|workbox-[^/]+$|manifest\\.webmanifest$|.*\\.(png|svg|ico|webmanifest)$).*)",
-      "destination": "/index.html"
-    }
+    { "source": "/licor-rayan-painel/:path*", "destination": "/index.html" }
   ]
 }
