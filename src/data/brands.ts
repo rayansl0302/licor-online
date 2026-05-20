@@ -17,6 +17,7 @@ export const BRANDS: Brand[] = [
   {
     id: "arraia",
     nome: "Arraiá do Quiabo",
+    cidade: "Cachoeira",
     cor: "#f5c518",
     categorias: [
       {
