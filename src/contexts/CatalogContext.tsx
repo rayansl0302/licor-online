@@ -17,6 +17,7 @@ import {
 } from "../lib/catalogStore";
 import type { Brand, BrandId } from "../types";
 import {
+  addCatalogBrand,
   addCatalogProduct,
   removeCatalogProduct,
   updateCatalogProduct,
@@ -46,9 +47,14 @@ interface CatalogContextValue {
     patch: { nome?: string; preco?: number }
   ) => Promise<void>;
   importCatalog: (brands: Brand[]) => Promise<void>;
+  addBrand: (input: {
+    nome: string;
+    cidade?: string;
+    cor?: string;
+  }) => Promise<BrandId>;
 }
 
-const CatalogContext = createContext<CatalogContextValue | null>(null);
+export const CatalogContext = createContext<CatalogContextValue | null>(null);
 
 export function CatalogProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
@@ -159,6 +165,21 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
     [persist]
   );
 
+  const addBrand = useCallback(
+    async (input: { nome: string; cidade?: string; cor?: string }) => {
+      const next = addCatalogBrand(brands, input);
+      const created = next.find(
+        (brand) => !brands.some((existing) => existing.id === brand.id)
+      );
+      if (!created) {
+        throw new Error("brand-create-failed");
+      }
+      await persist(next);
+      return created.id;
+    },
+    [brands, persist]
+  );
+
   const value = useMemo(
     () => ({
       brands,
@@ -169,6 +190,7 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
       removeProduct,
       updateProduct,
       importCatalog,
+      addBrand,
     }),
     [
       brands,
@@ -179,6 +201,7 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
       removeProduct,
       updateProduct,
       importCatalog,
+      addBrand,
     ]
   );
 

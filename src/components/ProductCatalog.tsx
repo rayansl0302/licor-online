@@ -1,8 +1,9 @@
-import { useCatalog } from "../contexts/CatalogContext";
+import { CatalogContext } from "../contexts/CatalogContext";
+import { useContext } from "react";
 import { getBrandById } from "../data/brands";
 import { formatCurrency } from "../utils/format";
 import { formatMarkupLabel } from "../utils/pricing";
-import type { BrandId, Product } from "../types";
+import type { Brand, BrandId, Product } from "../types";
 
 interface ProductCatalogProps {
   brandId: BrandId;
@@ -11,6 +12,8 @@ interface ProductCatalogProps {
   onAdd: (product: Product) => void;
   search: string;
   readOnly?: boolean;
+  brands?: Brand[];
+  showMarkupLabel?: boolean;
 }
 
 export function ProductCatalog({
@@ -20,8 +23,11 @@ export function ProductCatalog({
   onAdd,
   search,
   readOnly = false,
+  brands: brandsProp,
+  showMarkupLabel = true,
 }: ProductCatalogProps) {
-  const { brands } = useCatalog();
+  const catalog = useContext(CatalogContext);
+  const brands = brandsProp ?? catalog?.brands ?? [];
   const brand = getBrandById(brands, brandId);
   if (!brand) return null;
 
@@ -49,9 +55,11 @@ export function ProductCatalog({
                       <span className="catalog-item__name">{product.nome}</span>
                       <span className="catalog-item__price">
                         {formatCurrency(product.preco)}
-                        <span className="catalog-item__markup">
-                          {formatMarkupLabel(markupPercent)}
-                        </span>
+                        {showMarkupLabel && (
+                          <span className="catalog-item__markup">
+                            {formatMarkupLabel(markupPercent)}
+                          </span>
+                        )}
                       </span>
                     </div>
                     {!readOnly && (

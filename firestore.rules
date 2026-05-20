@@ -16,11 +16,37 @@ service cloud.firestore {
         && request.auth.token.email.matches('.*[rR][aA][yY][aA][nN].*');
     }
 
-    // Pedidos — somente admin
+    function isValidPublicOrder() {
+      let data = request.resource.data;
+      return data.origem == 'cliente-publico'
+        && !('criadoPor' in data)
+        && data.clienteNome is string
+        && data.clienteNome.size() >= 2
+        && data.clienteNome.size() <= 120
+        && data.marcaId is string
+        && data.marcaId.size() >= 2
+        && data.marcaId.size() <= 80
+        && data.marcaNome is string
+        && data.marcaNome.size() >= 2
+        && data.marcaNome.size() <= 120
+        && data.observacao is string
+        && data.observacao.size() <= 500
+        && data.total is number
+        && data.total >= 0
+        && data.total <= 50000
+        && data.concluido == false
+        && data.cancelado == false
+        && data.itens is list
+        && data.itens.size() > 0
+        && data.itens.size() <= 80;
+    }
+
+    // Pedidos — admin gerencia; cliente público só pode criar
     match /pedidos/{pedidoId} {
       allow read: if isAdmin();
-      allow create: if isAdmin()
-        && request.resource.data.criadoPor == request.auth.uid;
+      allow create: if (isAdmin()
+          && request.resource.data.criadoPor == request.auth.uid)
+        || isValidPublicOrder();
       allow update, delete: if isAdmin();
     }
 
@@ -29,9 +55,10 @@ service cloud.firestore {
       allow read, write: if isAdmin() && request.auth.uid == userId;
     }
 
-    // Catálogo de licores (preços base e sabores)
+    // Catálogo de licores — leitura pública para o link de pedido
     match /config/catalogo {
-      allow read, write: if isAdmin();
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // Bloqueia qualquer outra coleção

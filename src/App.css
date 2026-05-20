@@ -147,6 +147,13 @@
   margin-bottom: 0.85rem;
 }
 
+.catalog-section__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .catalog-section__head .section-title {
   margin: 0;
 }
@@ -819,6 +826,39 @@
 .order-badge--cancelado {
   color: var(--error);
   background: rgba(232, 106, 106, 0.2);
+}
+
+.order-badge--link {
+  color: #7eb8e8;
+  background: rgba(30, 90, 158, 0.25);
+}
+
+.public-order-link {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.public-order-link__label {
+  margin: 0 0 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.public-order-link__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.public-order-link__input {
+  flex: 1;
+  min-width: 200px;
+  font-size: 0.8rem;
 }
 
 .order-card__meta {

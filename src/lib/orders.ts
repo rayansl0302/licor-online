@@ -11,9 +11,10 @@ import {
 import { auth } from "./auth";
 import { db } from "./firebase";
 import { getFirestoreErrorMessage } from "./firestoreErrors";
-import type { BrandId, CartItem, Order } from "../types";
+import type { BrandId, CartItem, Order, OrderOrigem } from "../types";
 
 const COLLECTION = "pedidos";
+const PUBLIC_ORIGEM: OrderOrigem = "cliente-publico";
 
 interface OrderFirestore {
   clienteNome: string;
@@ -26,6 +27,7 @@ interface OrderFirestore {
   concluido: boolean;
   cancelado: boolean;
   criadoPor?: string;
+  origem?: OrderOrigem;
 }
 
 function mapDoc(id: string, data: OrderFirestore): Order {
@@ -41,6 +43,7 @@ function mapDoc(id: string, data: OrderFirestore): Order {
     concluido: data.concluido ?? false,
     cancelado: data.cancelado ?? false,
     criadoPor: data.criadoPor,
+    origem: data.origem,
   };
 }
 
@@ -91,7 +94,27 @@ export async function saveOrder(input: {
     cancelado: false,
     criadoEm: serverTimestamp(),
     criadoPor: uid,
+    origem: "admin",
   });
+}
+
+export async function savePublicOrder(input: {
+  clienteNome: string;
+  marcaId: BrandId;
+  marcaNome: string;
+  itens: CartItem[];
+  total: number;
+  observacao: string;
+}): Promise<string> {
+  const docRef = await addDoc(collection(db, COLLECTION), {
+    ...input,
+    concluido: false,
+    cancelado: false,
+    criadoEm: serverTimestamp(),
+    origem: PUBLIC_ORIGEM,
+  });
+
+  return docRef.id;
 }
 
 export async function toggleOrderDone(id: string, concluido: boolean): Promise<void> {

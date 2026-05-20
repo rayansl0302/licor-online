@@ -18,6 +18,12 @@ interface CartPanelProps {
   onPrint: () => void;
   saveLabel?: string;
   showClear?: boolean;
+  showCopyPrint?: boolean;
+  showCopy?: boolean;
+  showPrint?: boolean;
+  copyLabel?: string;
+  clienteLabel?: string;
+  emptyHint?: string;
   onCancel?: () => void;
 }
 
@@ -38,9 +44,18 @@ export function CartPanel({
   onPrint,
   saveLabel = "Salvar pedido",
   showClear = true,
+  showCopyPrint = true,
+  showCopy: showCopyProp,
+  showPrint: showPrintProp,
+  copyLabel = "Copiar",
+  clienteLabel = "Nome do cliente *",
+  emptyHint = "Cole o pedido acima ou toque em + na lista de sabores.",
   onCancel,
 }: CartPanelProps) {
+  const showCopy = showCopyProp ?? showCopyPrint;
+  const showPrint = showPrintProp ?? showCopyPrint;
   const canSave = clienteNome.trim().length > 0 && items.length > 0 && !saving;
+  const canCopy = clienteNome.trim().length > 0 && items.length > 0;
 
   return (
     <aside className="cart-panel" aria-label="Pedido atual">
@@ -52,7 +67,7 @@ export function CartPanel({
       </div>
 
       <label className="field">
-        <span className="field__label">Nome do cliente *</span>
+        <span className="field__label">{clienteLabel}</span>
         <input
           type="text"
           className="field__input"
@@ -75,9 +90,7 @@ export function CartPanel({
       </label>
 
       {items.length === 0 ? (
-        <p className="empty-hint">
-          Cole o pedido acima ou toque em + na lista de sabores.
-        </p>
+        <p className="empty-hint">{emptyHint}</p>
       ) : (
         <ul className="cart-list">
           {items.map((item) => (
@@ -127,24 +140,30 @@ export function CartPanel({
           <span>Total</span>
           <strong>{formatCurrency(total)}</strong>
         </div>
-        <div className="cart-actions cart-actions--row">
-          <button
-            type="button"
-            className="btn btn--secondary btn--small"
-            disabled={items.length === 0}
-            onClick={onCopy}
-          >
-            Copiar
-          </button>
-          <button
-            type="button"
-            className="btn btn--secondary btn--small"
-            disabled={items.length === 0}
-            onClick={onPrint}
-          >
-            Imprimir
-          </button>
-        </div>
+        {(showCopy || showPrint) && (
+          <div className="cart-actions cart-actions--row">
+            {showCopy && (
+              <button
+                type="button"
+                className="btn btn--secondary btn--small"
+                disabled={!canCopy}
+                onClick={onCopy}
+              >
+                {copyLabel}
+              </button>
+            )}
+            {showPrint && (
+              <button
+                type="button"
+                className="btn btn--secondary btn--small"
+                disabled={items.length === 0}
+                onClick={onPrint}
+              >
+                Imprimir
+              </button>
+            )}
+          </div>
+        )}
         <div className="cart-actions">
           {onCancel && (
             <button

@@ -3,6 +3,8 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
+    { "source": "/pedir", "destination": "/index.html" },
+    { "source": "/pedir/", "destination": "/index.html" },
     { "source": "/licor-rayan-painel", "destination": "/index.html" },
     { "source": "/licor-rayan-painel/", "destination": "/index.html" },
     { "source": "/licor-rayan-painel/:path*", "destination": "/index.html" }

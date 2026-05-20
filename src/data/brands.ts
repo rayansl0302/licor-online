@@ -44,6 +44,49 @@ export function getBrandById(brands: Brand[], brandId: string) {
   return brands.find((b) => b.id === brandId);
 }
 
+export function slugifyBrandId(nome: string): string {
+  const slug = nome
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return slug || "fornecedor";
+}
+
+export function createUniqueBrandId(nome: string, existingIds: string[]): string {
+  const base = slugifyBrandId(nome);
+  if (!existingIds.includes(base)) return base;
+
+  let suffix = 2;
+  while (existingIds.includes(`${base}-${suffix}`)) {
+    suffix += 1;
+  }
+  return `${base}-${suffix}`;
+}
+
+export function getDefaultBrandId(brands: Brand[]): BrandId {
+  if (brands.length === 0) return "roque-pinto";
+  const preferred = brands.find((b) => b.id === "roque-pinto");
+  return preferred?.id ?? brands[0].id;
+}
+
+export function extractBrandIdFromProductId(
+  productId: string,
+  brands: Brand[]
+): BrandId | null {
+  const sorted = [...brands].sort((a, b) => b.id.length - a.id.length);
+
+  for (const brand of sorted) {
+    if (productId === brand.id || productId.startsWith(`${brand.id}-`)) {
+      return brand.id;
+    }
+  }
+
+  return null;
+}
+
 export function cloneBrands(brands: Brand[]): Brand[] {
   return brands.map((brand) => ({
     ...brand,

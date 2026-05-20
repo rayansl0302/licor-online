@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { AddBrandModal } from "../components/AddBrandModal";
 import { BrandTabs } from "../components/BrandTabs";
 import { CatalogEditor } from "../components/CatalogEditor";
 import { CatalogImportPanel } from "../components/CatalogImportPanel";
@@ -6,6 +7,7 @@ import { ProductCatalog } from "../components/ProductCatalog";
 import { useCatalog } from "../contexts/CatalogContext";
 import { useMarkup } from "../contexts/MarkupContext";
 import { getCatalogForBrand } from "../data/catalog";
+import { getDefaultBrandId } from "../data/brands";
 import {
   copyCatalogText,
   printCatalog,
@@ -17,10 +19,16 @@ import type { BrandId } from "../types";
 export function CatalogoPage() {
   const { brands } = useCatalog();
   const { markupPercent, setMarkupPercent } = useMarkup();
-  const [brandId, setBrandId] = useState<BrandId>("roque-pinto");
+  const [brandId, setBrandId] = useState<BrandId>(() => getDefaultBrandId(brands));
   const [printScope, setPrintScope] = useState<CatalogPrintScope>("todas");
   const [editMode, setEditMode] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!brands.some((brand) => brand.id === brandId)) {
+      setBrandId(getDefaultBrandId(brands));
+    }
+  }, [brands, brandId]);
 
   const products = useMemo(
     () => getCatalogForBrand(brands, brandId, markupPercent),
@@ -111,13 +119,23 @@ export function CatalogoPage() {
       <section className="catalog-section">
         <div className="catalog-section__head">
           <h3 className="section-title">Pré-visualização</h3>
-          <button
-            type="button"
-            className={`btn btn--small ${editMode ? "btn--primary" : "btn--secondary"}`}
-            onClick={() => setEditMode((prev) => !prev)}
-          >
-            {editMode ? "Ver catálogo" : "Editar catálogo"}
-          </button>
+          <div className="catalog-section__actions">
+            {editMode && (
+              <AddBrandModal
+                onCreated={(id, message) => {
+                  setBrandId(id);
+                  setFeedback(message);
+                }}
+              />
+            )}
+            <button
+              type="button"
+              className={`btn btn--small ${editMode ? "btn--primary" : "btn--secondary"}`}
+              onClick={() => setEditMode((prev) => !prev)}
+            >
+              {editMode ? "Ver catálogo" : "Editar catálogo"}
+            </button>
+          </div>
         </div>
 
         <BrandTabs activeId={brandId} onChange={setBrandId} />

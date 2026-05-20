@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
-import { App } from "./App";
+import { RootApp } from "./RootApp";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CatalogProvider } from "./contexts/CatalogContext";
 import { MarkupProvider } from "./contexts/MarkupContext";
@@ -16,7 +16,7 @@ createRoot(document.getElementById("root")!).render(
     <CatalogProvider>
       <MarkupProvider>
         <PixProvider>
-          <App />
+          <RootApp />
         </PixProvider>
       </MarkupProvider>
     </CatalogProvider>

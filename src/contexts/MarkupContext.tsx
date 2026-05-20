@@ -11,7 +11,9 @@ import {
   loadMarkupPercent,
   saveMarkupPercent,
 } from "../lib/markupStorage";
+import { saveMarkupPublico } from "../lib/catalogStore";
 import { applyMarkup } from "../utils/pricing";
+import { useAuth } from "./AuthContext";
 
 interface MarkupContextValue {
   markupPercent: number;
@@ -22,13 +24,26 @@ interface MarkupContextValue {
 const MarkupContext = createContext<MarkupContextValue | null>(null);
 
 export function MarkupProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [markupPercent, setMarkupPercentState] = useState(loadMarkupPercent);
 
-  const setMarkupPercent = useCallback((percent: number) => {
-    const value = Math.min(200, Math.max(0, Math.round(percent)));
-    saveMarkupPercent(value);
-    setMarkupPercentState(value);
-  }, []);
+  const setMarkupPercent = useCallback(
+    (percent: number) => {
+      const value = Math.min(200, Math.max(0, Math.round(percent)));
+      saveMarkupPercent(value);
+      setMarkupPercentState(value);
+
+      if (user) {
+        saveMarkupPublico(value).catch(() => undefined);
+      }
+    },
+    [user]
+  );
+
+  useEffect(() => {
+    if (!user) return;
+    saveMarkupPublico(markupPercent).catch(() => undefined);
+  }, [user?.uid]);
 
   const applyToPrice = useCallback(
     (basePrice: number) => applyMarkup(basePrice, markupPercent),

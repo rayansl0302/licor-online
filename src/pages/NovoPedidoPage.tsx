@@ -2,12 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { BrandTabs } from "../components/BrandTabs";
 import { CartPanel } from "../components/CartPanel";
 import { OrderPastePanel } from "../components/OrderPastePanel";
+import { PublicOrderLink } from "../components/PublicOrderLink";
 import { ProductCatalog } from "../components/ProductCatalog";
 import { useCatalog } from "../contexts/CatalogContext";
 import { useMarkup } from "../contexts/MarkupContext";
 import { usePix } from "../contexts/PixContext";
 import { getCatalogForBrand } from "../data/catalog";
-import { getBrandById } from "../data/brands";
+import { getBrandById, getDefaultBrandId } from "../data/brands";
 import { useCart } from "../hooks/useCart";
 import { getFirestoreErrorMessage, saveOrder } from "../lib/orders";
 import type { BrandId } from "../types";
@@ -23,15 +24,21 @@ interface NovoPedidoPageProps {
 }
 
 export function NovoPedidoPage({ onSaved, onGoToPedidos }: NovoPedidoPageProps) {
-  const [brandId, setBrandId] = useState<BrandId>("roque-pinto");
+  const { brands } = useCatalog();
+  const [brandId, setBrandId] = useState<BrandId>(() => getDefaultBrandId(brands));
   const [search, setSearch] = useState("");
   const [clienteNome, setClienteNome] = useState("");
   const [observacao, setObservacao] = useState("");
   const [saving, setSaving] = useState(false);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
-  const { brands } = useCatalog();
   const { markupPercent } = useMarkup();
+
+  useEffect(() => {
+    if (!brands.some((brand) => brand.id === brandId)) {
+      setBrandId(getDefaultBrandId(brands));
+    }
+  }, [brands, brandId]);
   const { pixKey, pixBank, pixHolderName } = usePix();
   const cart = useCart();
   const products = useMemo(
@@ -147,6 +154,7 @@ export function NovoPedidoPage({ onSaved, onGoToPedidos }: NovoPedidoPageProps) 
 
   return (
     <div className="novo-layout">
+      <PublicOrderLink />
       <OrderPastePanel onParse={handleParseOrder} />
 
       <div className="novo-layout__body">

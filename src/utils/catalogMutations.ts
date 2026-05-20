@@ -1,5 +1,31 @@
-import { buildProductId } from "../data/brands";
+import { buildProductId, createUniqueBrandId } from "../data/brands";
 import type { Brand, BrandId } from "../types";
+
+export function addCatalogBrand(
+  brands: Brand[],
+  input: { nome: string; cidade?: string; cor?: string }
+): Brand[] {
+  const nomeTrim = input.nome.trim();
+  if (!nomeTrim) return brands;
+
+  const id = createUniqueBrandId(
+    nomeTrim,
+    brands.map((brand) => brand.id)
+  );
+  const cor = input.cor?.trim() || "#1e5a9e";
+  const cidade = input.cidade?.trim() || undefined;
+
+  return [
+    ...brands,
+    {
+      id,
+      nome: nomeTrim,
+      cor,
+      cidade,
+      categorias: [{ nome: "Tradicionais", produtos: [] }],
+    },
+  ];
+}
 
 function updateBrand(
   brands: Brand[],

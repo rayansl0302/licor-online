@@ -164,6 +164,9 @@ export function OrdersPanel({
                     <strong className="order-card__client">
                       {order.clienteNome}
                     </strong>
+                    {order.origem === "cliente-publico" && (
+                      <span className="order-badge order-badge--link">Link</span>
+                    )}
                     <span
                       className={`order-badge order-badge--${situation}`}
                     >

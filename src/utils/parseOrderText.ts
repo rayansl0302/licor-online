@@ -1,3 +1,4 @@
+import { extractBrandIdFromProductId } from "../data/brands";
 import { getAllCatalogProducts } from "../data/catalog";
 import type { Brand, BrandId, CartItem, Product } from "../types";
 
@@ -9,24 +10,25 @@ export interface ParseOrderResult {
   avisos: string[];
 }
 
-const BRAND_ALIASES: { id: BrandId; patterns: string[] }[] = [
-  {
-    id: "roque-pinto",
-    patterns: ["roque pinto", "roquepinto"],
-  },
-  {
-    id: "cachoeira-colonial",
-    patterns: ["cachoeira colonial", "cachoeira", "colonial"],
-  },
-  {
-    id: "arraia",
-    patterns: ["arraia do quiabo", "arraia", "quiabo"],
-  },
-].sort((a, b) => {
-  const maxA = Math.max(...a.patterns.map((p) => p.length));
-  const maxB = Math.max(...b.patterns.map((p) => p.length));
-  return maxB - maxA;
-});
+function buildBrandAliases(brands: Brand[]): { id: BrandId; patterns: string[] }[] {
+  const entries = brands.flatMap((brand) => {
+    const patterns = new Set<string>([brand.nome, brand.id.replace(/-/g, " ")]);
+
+    if (brand.cidade) {
+      patterns.add(`${brand.nome} de ${brand.cidade}`);
+      patterns.add(`${brand.nome} ${brand.cidade}`);
+      patterns.add(brand.cidade);
+    }
+
+    return { id: brand.id, patterns: [...patterns] };
+  });
+
+  return entries.sort((a, b) => {
+    const maxA = Math.max(...a.patterns.map((p) => normalize(p).length));
+    const maxB = Math.max(...b.patterns.map((p) => normalize(p).length));
+    return maxB - maxA;
+  });
+}
 
 const PRODUCT_ALIASES: Record<string, string> = {
   caja: "cajá",
@@ -56,10 +58,13 @@ function normalize(text: string): string {
     .trim();
 }
 
-function detectBrand(line: string): { brandId: BrandId | null; rest: string } {
+function detectBrand(
+  line: string,
+  brands: Brand[]
+): { brandId: BrandId | null; rest: string } {
   const normalized = normalize(line);
 
-  for (const { id, patterns } of BRAND_ALIASES) {
+  for (const { id, patterns } of buildBrandAliases(brands)) {
     for (const pattern of patterns) {
       const normPattern = normalize(pattern);
       if (normalized.endsWith(normPattern)) {
@@ -133,7 +138,7 @@ function parseItemLine(
     return null;
   }
 
-  const { brandId, rest } = detectBrand(restRaw);
+  const { brandId, rest } = detectBrand(restRaw, brands);
 
   if (!brandId) {
     erros.push(`Marca não identificada: "${trimmed}"`);
@@ -243,10 +248,8 @@ export function getMarcaLabelFromItems(
   const brandIds = new Set<BrandId>();
 
   for (const item of itens) {
-    if (item.productId.startsWith("roque-pinto")) brandIds.add("roque-pinto");
-    else if (item.productId.startsWith("cachoeira-colonial"))
-      brandIds.add("cachoeira-colonial");
-    else if (item.productId.startsWith("arraia")) brandIds.add("arraia");
+    const brandId = extractBrandIdFromProductId(item.productId, brands);
+    if (brandId) brandIds.add(brandId);
   }
 
   const names = [...brandIds].map(
@@ -254,7 +257,8 @@ export function getMarcaLabelFromItems(
   );
 
   if (names.length === 0) {
-    return { marcaId: "roque-pinto", marcaNome: "—" };
+    const fallbackId = brands[0]?.id ?? "roque-pinto";
+    return { marcaId: fallbackId, marcaNome: "—" };
   }
 
   if (names.length === 1) {

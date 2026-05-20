@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { OrdersPanel } from "./components/OrdersPanel";
-import { isSecretRoute, redirectToSecretRoute } from "./config/access";
+import { isKnownAppRoute, isSecretRoute, redirectToSecretRoute } from "./config/access";
 import { useAuth } from "./contexts/AuthContext";
 import { AppLayout } from "./layouts/AppLayout";
 import {
@@ -42,7 +42,7 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    if (!isSecretRoute(pathname)) {
+    if (!isKnownAppRoute(pathname)) {
       redirectToSecretRoute();
     }
   }, [pathname]);

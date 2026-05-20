@@ -1,12 +1,8 @@
-import { cloneBrands } from "../data/brands";
+import { cloneBrands, createUniqueBrandId, slugifyBrandId } from "../data/brands";
 import { DEFAULT_BRANDS } from "../data/defaultBrands";
 import type { Brand, BrandId } from "../types";
 
-const VALID_BRAND_IDS: BrandId[] = [
-  "arraia",
-  "roque-pinto",
-  "cachoeira-colonial",
-];
+const BRAND_ID_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export interface CatalogExportFile {
   version: number;
@@ -35,29 +31,46 @@ function parsePreco(value: unknown): number | null {
   return null;
 }
 
-function normalizeBrandId(value: unknown): BrandId | null {
-  if (typeof value !== "string") return null;
-  const id = value.trim() as BrandId;
-  return VALID_BRAND_IDS.includes(id) ? id : null;
+function normalizeBrandId(
+  value: unknown,
+  nome: string,
+  usedIds: Set<string>
+): BrandId | null {
+  const existing = [...usedIds];
+
+  if (typeof value === "string" && value.trim()) {
+    const id = slugifyBrandId(value.trim());
+    if (!BRAND_ID_REGEX.test(id)) return null;
+    return createUniqueBrandId(id, existing);
+  }
+
+  return createUniqueBrandId(nome, existing);
 }
 
-function normalizeBrand(raw: unknown, erros: string[], index: number): Brand | null {
+function normalizeBrand(
+  raw: unknown,
+  erros: string[],
+  index: number,
+  usedIds: Set<string>
+): Brand | null {
   if (!isRecord(raw)) {
     erros.push(`Marca #${index + 1}: formato inválido.`);
     return null;
   }
 
-  const id = normalizeBrandId(raw.id);
-  if (!id) {
-    erros.push(`Marca #${index + 1}: id inválido (use arraia, roque-pinto ou cachoeira-colonial).`);
+  const nome = typeof raw.nome === "string" ? raw.nome.trim() : "";
+  if (!nome) {
+    erros.push(`Marca #${index + 1}: nome obrigatório.`);
     return null;
   }
 
-  const nome = typeof raw.nome === "string" ? raw.nome.trim() : "";
-  if (!nome) {
-    erros.push(`Marca "${id}": nome obrigatório.`);
+  const id = normalizeBrandId(raw.id, nome, usedIds);
+  if (!id) {
+    erros.push(`Marca #${index + 1}: id inválido (use letras minúsculas e hífens).`);
     return null;
   }
+
+  usedIds.add(id);
 
   const cor = typeof raw.cor === "string" && raw.cor.trim() ? raw.cor.trim() : "#1e5a9e";
   const cidade =
@@ -161,22 +174,16 @@ export function parseCatalogImportJson(text: string): CatalogImportResult {
   }
 
   const brands: Brand[] = [];
+  const usedIds = new Set<string>();
 
   brandsRaw.forEach((brandRaw, index) => {
-    const brand = normalizeBrand(brandRaw, erros, index);
+    const brand = normalizeBrand(brandRaw, erros, index, usedIds);
     if (brand) brands.push(brand);
   });
 
   if (brands.length === 0 && erros.length === 0) {
     erros.push("Nenhuma marca válida encontrada no arquivo.");
   }
-
-  const ids = new Set(brands.map((b) => b.id));
-  VALID_BRAND_IDS.forEach((id) => {
-    if (!ids.has(id)) {
-      avisos.push(`Marca "${id}" não está no JSON — ficará vazia até você adicionar.`);
-    }
-  });
 
   return { brands: cloneBrands(brands), avisos, erros };
 }

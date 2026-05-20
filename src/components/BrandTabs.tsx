@@ -1,14 +1,19 @@
-import { useCatalog } from "../contexts/CatalogContext";
+import { CatalogContext } from "../contexts/CatalogContext";
+import { useContext } from "react";
 import type { CSSProperties } from "react";
-import type { BrandId } from "../types";
+import type { Brand, BrandId } from "../types";
 
 interface BrandTabsProps {
   activeId: BrandId;
   onChange: (id: BrandId) => void;
+  brands?: Brand[];
 }
 
-export function BrandTabs({ activeId, onChange }: BrandTabsProps) {
-  const { brands } = useCatalog();
+export function BrandTabs({ activeId, onChange, brands: brandsProp }: BrandTabsProps) {
+  const catalog = useContext(CatalogContext);
+  const brands = brandsProp ?? catalog?.brands ?? [];
+
+  if (brands.length === 0) return null;
 
   return (
     <div className="brand-tabs" role="tablist" aria-label="Marcas de licor">

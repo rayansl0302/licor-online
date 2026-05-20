@@ -1,4 +1,4 @@
-export type BrandId = "arraia" | "roque-pinto" | "cachoeira-colonial";
+export type BrandId = string;
 
 export interface Product {
   id: string;
@@ -22,6 +22,8 @@ export interface CartItem {
   quantidade: number;
 }
 
+export type OrderOrigem = "admin" | "cliente-publico";
+
 export interface Order {
   id: string;
   clienteNome: string;
@@ -34,6 +36,7 @@ export interface Order {
   concluido: boolean;
   cancelado: boolean;
   criadoPor?: string;
+  origem?: OrderOrigem;
 }
 
 export type OrderStatus = "pendente" | "vendido" | "cancelado" | "todos";
