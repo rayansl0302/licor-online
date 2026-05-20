@@ -55,8 +55,17 @@ export function AppLayout({
   children,
 }: AppLayoutProps) {
   const { markupPercent } = useMarkup();
-  const { pixKey, pixBank, pixHolderName, setPixKey, setPixBank, setPixHolderName } =
-    usePix();
+  const {
+    pixKey,
+    pixBank,
+    pixHolderName,
+    setPixKey,
+    setPixBank,
+    setPixHolderName,
+    loading: pixLoading,
+    saving: pixSaving,
+    error: pixError,
+  } = usePix();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleNav = (next: AppView) => {
@@ -118,6 +127,15 @@ export function AppLayout({
 
         <div className="sidebar__footer">
           <div className="sidebar__pix-fields">
+            <p className="sidebar__pix-hint">
+              Dados PIX salvos na sua conta
+              {pixSaving && " · salvando…"}
+            </p>
+            {pixError && (
+              <p className="sidebar__pix-error" role="alert">
+                {pixError}
+              </p>
+            )}
             <label className="field sidebar__pix-field">
               <span className="field__label">Nome completo (titular)</span>
               <input
@@ -127,6 +145,7 @@ export function AppLayout({
                 onChange={(e) => setPixHolderName(e.target.value)}
                 placeholder="Nome de quem recebe o PIX"
                 autoComplete="name"
+                disabled={pixLoading}
               />
             </label>
             <label className="field sidebar__pix-field">
@@ -138,6 +157,7 @@ export function AppLayout({
                 onChange={(e) => setPixBank(e.target.value)}
                 placeholder="Ex.: Nubank, Itaú"
                 autoComplete="off"
+                disabled={pixLoading}
               />
             </label>
             <label className="field sidebar__pix-field">
@@ -149,6 +169,7 @@ export function AppLayout({
                 onChange={(e) => setPixKey(e.target.value)}
                 placeholder="CPF, e-mail, telefone ou aleatória"
                 autoComplete="off"
+                disabled={pixLoading}
               />
             </label>
           </div>

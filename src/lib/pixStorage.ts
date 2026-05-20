@@ -7,13 +7,13 @@ export interface PixSettings {
   holderName: string;
 }
 
-const EMPTY_PIX_SETTINGS: PixSettings = {
+export const EMPTY_PIX_SETTINGS: PixSettings = {
   key: "",
   bank: "",
   holderName: "",
 };
 
-function normalizePixSettings(value: unknown): PixSettings {
+export function normalizePixSettings(value: unknown): PixSettings {
   if (!value || typeof value !== "object") return EMPTY_PIX_SETTINGS;
 
   const data = value as Record<string, unknown>;
@@ -26,7 +26,7 @@ function normalizePixSettings(value: unknown): PixSettings {
   };
 }
 
-export function loadPixSettings(): PixSettings {
+export function loadLegacyPixSettings(): PixSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return normalizePixSettings(JSON.parse(raw));
@@ -38,6 +38,11 @@ export function loadPixSettings(): PixSettings {
   }
 }
 
-export function savePixSettings(settings: PixSettings): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizePixSettings(settings)));
+export function clearLegacyPixStorage(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(LEGACY_KEY);
+  } catch {
+    /* ignore */
+  }
 }

@@ -24,6 +24,11 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // Dados PIX e preferências — cada admin só acessa o próprio documento
+    match /usuarios/{userId} {
+      allow read, write: if isAdmin() && request.auth.uid == userId;
+    }
+
     // Bloqueia qualquer outra coleção
     match /{document=**} {
       allow read, write: if false;

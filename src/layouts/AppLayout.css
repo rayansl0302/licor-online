@@ -142,6 +142,19 @@
   margin-bottom: 0.85rem;
 }
 
+.sidebar__pix-hint {
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.sidebar__pix-error {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--error);
+}
+
 .sidebar__pix-field {
   margin: 0;
 }
