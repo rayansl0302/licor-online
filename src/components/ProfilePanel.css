@@ -107,6 +107,11 @@
   flex-shrink: 0;
 }
 
+.profile-panel__save {
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
 .profile-panel__logout {
   width: 100%;
 }

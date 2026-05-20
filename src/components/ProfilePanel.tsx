@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePix } from "../contexts/PixContext";
+import type { PixSettings } from "../lib/userPix";
 import type { NotificationPermissionState } from "../lib/orderNotifications";
 import "./ProfilePanel.css";
 
@@ -12,6 +13,12 @@ interface ProfilePanelProps {
   onLogout: () => void;
   onClose: () => void;
 }
+
+const EMPTY_DRAFT: PixSettings = {
+  key: "",
+  bank: "",
+  holderName: "",
+};
 
 export function ProfilePanel({
   open,
@@ -26,14 +33,26 @@ export function ProfilePanel({
     pixKey,
     pixBank,
     pixHolderName,
-    setPixKey,
-    setPixBank,
-    setPixHolderName,
     loading: pixLoading,
     saving: pixSaving,
     error: pixError,
+    savePix,
     hasPixInfo,
   } = usePix();
+
+  const [draft, setDraft] = useState<PixSettings>(EMPTY_DRAFT);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    setDraft({
+      key: pixKey,
+      bank: pixBank,
+      holderName: pixHolderName,
+    });
+    setSaveMessage(null);
+  }, [open, pixKey, pixBank, pixHolderName]);
 
   useEffect(() => {
     if (!open) return;
@@ -60,9 +79,24 @@ export function ProfilePanel({
     await onRequestNotifications();
   };
 
+  const handleSavePix = async () => {
+    setSaveMessage(null);
+    try {
+      await savePix(draft);
+      setSaveMessage("Dados PIX salvos!");
+    } catch {
+      setSaveMessage(null);
+    }
+  };
+
   const handleLogout = () => {
     onClose();
     onLogout();
+  };
+
+  const updateDraft = (patch: Partial<PixSettings>) => {
+    setDraft((prev) => ({ ...prev, ...patch }));
+    setSaveMessage(null);
   };
 
   return (
@@ -119,11 +153,9 @@ export function ProfilePanel({
               <span className="profile-panel__status">
                 {pixLoading
                   ? "Carregando…"
-                  : pixSaving
-                    ? "Salvando…"
-                    : hasPixInfo
-                      ? "Salvo na nuvem"
-                      : "Preencha para copiar nos pedidos"}
+                  : hasPixInfo
+                    ? "Último salvamento na nuvem"
+                    : "Preencha e toque em Salvar"}
               </span>
             </div>
 
@@ -133,14 +165,20 @@ export function ProfilePanel({
               </p>
             )}
 
+            {saveMessage && (
+              <p className="alert alert--success profile-panel__alert" role="status">
+                {saveMessage}
+              </p>
+            )}
+
             <label className="field">
               <span className="field__label">Nome completo (titular)</span>
               <input
                 type="text"
                 className="field__input"
-                value={pixHolderName}
-                onChange={(e) => setPixHolderName(e.target.value)}
-                placeholder="Nome de quem recebe o PIX"
+                value={draft.holderName}
+                onChange={(e) => updateDraft({ holderName: e.target.value })}
+                placeholder="Ex.: Maria José da Silva"
                 autoComplete="name"
                 disabled={pixLoading}
               />
@@ -150,8 +188,8 @@ export function ProfilePanel({
               <input
                 type="text"
                 className="field__input"
-                value={pixBank}
-                onChange={(e) => setPixBank(e.target.value)}
+                value={draft.bank}
+                onChange={(e) => updateDraft({ bank: e.target.value })}
                 placeholder="Ex.: Nubank, Itaú"
                 autoComplete="off"
                 disabled={pixLoading}
@@ -162,13 +200,22 @@ export function ProfilePanel({
               <input
                 type="text"
                 className="field__input"
-                value={pixKey}
-                onChange={(e) => setPixKey(e.target.value)}
+                value={draft.key}
+                onChange={(e) => updateDraft({ key: e.target.value })}
                 placeholder="CPF, e-mail, telefone ou aleatória"
                 autoComplete="off"
                 disabled={pixLoading}
               />
             </label>
+
+            <button
+              type="button"
+              className="btn btn--primary profile-panel__save"
+              disabled={pixLoading || pixSaving}
+              onClick={handleSavePix}
+            >
+              {pixSaving ? "Salvando…" : "Salvar dados PIX"}
+            </button>
           </section>
 
           {showNotifyButton && (

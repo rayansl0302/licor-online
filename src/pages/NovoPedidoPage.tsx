@@ -63,7 +63,7 @@ export function NovoPedidoPage({ onSaved, onGoToPedidos }: NovoPedidoPageProps) 
           `Pedido parcial: ${result.itens.length} item(ns). Verifique os erros.`
         );
       } else {
-        setActionMessage("Pedido montado a partir do texto!");
+        setActionMessage("Pedido salvo no carrinho!");
       }
     },
     [cart.setCartItems]
@@ -192,7 +192,8 @@ export function NovoPedidoPage({ onSaved, onGoToPedidos }: NovoPedidoPageProps) 
         <p
           className={`alert ${
             actionMessage.includes("copiado") ||
-            actionMessage.includes("montado")
+            actionMessage.includes("montado") ||
+            actionMessage.includes("carrinho")
               ? "alert--success"
               : actionMessage.includes("parcial")
                 ? "alert--warn"

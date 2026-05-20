@@ -8,7 +8,7 @@ interface OrderPastePanelProps {
   onParse: (result: ParseOrderResult) => void;
 }
 
-const EXAMPLE = `Leila:
+const EXAMPLE = `Leila Maria:
 1 Caja Roque Pinto
 1 amendoim Roque Pinto
 1 coco cremoso Roque Pinto
@@ -20,15 +20,23 @@ export function OrderPastePanel({ onParse }: OrderPastePanelProps) {
   const { markupPercent } = useMarkup();
   const [text, setText] = useState("");
   const [preview, setPreview] = useState<ParseOrderResult | null>(null);
+  const [previewCliente, setPreviewCliente] = useState("");
 
   const handleInterpret = () => {
-    setPreview(parseOrderText(text, markupPercent));
+    const result = parseOrderText(text, markupPercent);
+    setPreview(result);
+    setPreviewCliente(result.clienteNome);
   };
 
-  const handleApply = () => {
+  const handleSave = () => {
     if (!preview || preview.itens.length === 0) return;
-    onParse(preview);
+
+    onParse({
+      ...preview,
+      clienteNome: previewCliente.trim(),
+    });
     setPreview(null);
+    setPreviewCliente("");
   };
 
   return (
@@ -40,20 +48,22 @@ export function OrderPastePanel({ onParse }: OrderPastePanelProps) {
         </span>
       </div>
       <p className="paste-panel__hint">
-        Cole o texto do WhatsApp. Primeira linha com nome e dois pontos (ex:{" "}
-        <strong>Leila:</strong>). Depois, uma linha por item.
+        Cole o texto do WhatsApp. Primeira linha: nome completo com dois pontos
+        (ex: <strong>Leila Maria:</strong>). Depois, uma linha por item. Toque
+        em Interpretar e confira antes de Salvar.
       </p>
 
       <label className="field">
         <span className="sr-only">Texto do pedido</span>
         <textarea
           className="field__textarea"
-          rows={7}
+          rows={6}
           placeholder={EXAMPLE}
           value={text}
           onChange={(e) => {
             setText(e.target.value);
             setPreview(null);
+            setPreviewCliente("");
           }}
         />
       </label>
@@ -68,7 +78,7 @@ export function OrderPastePanel({ onParse }: OrderPastePanelProps) {
         </button>
         <button
           type="button"
-          className="btn btn--primary"
+          className="btn btn--secondary"
           disabled={!text.trim()}
           onClick={handleInterpret}
         >
@@ -78,11 +88,17 @@ export function OrderPastePanel({ onParse }: OrderPastePanelProps) {
 
       {preview && (
         <div className="paste-preview">
-          {preview.clienteNome && (
-            <p className="paste-preview__client">
-              Cliente: <strong>{preview.clienteNome}</strong>
-            </p>
-          )}
+          <label className="field paste-preview__client-field">
+            <span className="field__label">Nome do cliente</span>
+            <input
+              type="text"
+              className="field__input"
+              value={previewCliente}
+              onChange={(e) => setPreviewCliente(e.target.value)}
+              placeholder="Nome completo"
+              autoComplete="name"
+            />
+          </label>
 
           {preview.itens.length > 0 && (
             <ul className="paste-preview__list">
@@ -113,14 +129,26 @@ export function OrderPastePanel({ onParse }: OrderPastePanelProps) {
             </p>
           ))}
 
-          <button
-            type="button"
-            className="btn btn--primary"
-            disabled={preview.itens.length === 0}
-            onClick={handleApply}
-          >
-            Usar no pedido
-          </button>
+          <div className="paste-preview__actions">
+            <button
+              type="button"
+              className="btn btn--secondary"
+              onClick={() => {
+                setPreview(null);
+                setPreviewCliente("");
+              }}
+            >
+              Descartar
+            </button>
+            <button
+              type="button"
+              className="btn btn--primary"
+              disabled={preview.itens.length === 0 || !previewCliente.trim()}
+              onClick={handleSave}
+            >
+              Salvar no pedido
+            </button>
+          </div>
         </div>
       )}
     </section>

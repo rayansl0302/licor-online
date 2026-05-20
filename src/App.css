@@ -83,9 +83,22 @@
   border-radius: var(--radius-sm);
 }
 
-.paste-preview__client {
-  margin: 0 0 0.65rem;
-  font-size: 0.95rem;
+.paste-preview__client-field {
+  margin-bottom: 0.65rem;
+}
+
+.paste-preview__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.paste-preview__actions .btn {
+  flex: 1;
+}
+
+.paste-preview__actions .btn--primary {
+  flex: 1.2;
 }
 
 .paste-preview__list {
@@ -117,9 +130,6 @@
   color: var(--error);
 }
 
-.paste-preview .btn--primary {
-  width: 100%;
-}
 
 .catalog-section {
   background: var(--surface);

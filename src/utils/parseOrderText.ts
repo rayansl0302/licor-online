@@ -159,6 +159,21 @@ function parseItemLine(
   };
 }
 
+function parseClientLine(
+  line: string
+): { clienteNome: string; itemPart: string } | null {
+  const colonIndex = line.indexOf(":");
+  if (colonIndex <= 0) return null;
+
+  const clienteNome = line.slice(0, colonIndex).trim();
+  if (!clienteNome || /^\d/.test(clienteNome)) return null;
+
+  return {
+    clienteNome,
+    itemPart: line.slice(colonIndex + 1).trim(),
+  };
+}
+
 function mergeCartItems(items: CartItem[]): CartItem[] {
   const map = new Map<string, CartItem>();
 
@@ -190,17 +205,13 @@ export function parseOrderText(
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 
   for (const line of lines) {
-    const clientMatch = line.match(/^([^:\d][^:]*?):\s*$/);
-    if (clientMatch) {
-      clienteNome = clientMatch[1].trim();
-      continue;
-    }
-
-    const inlineClient = line.match(/^([^:\d][^:]{1,40}):\s*(.+)$/);
-    if (inlineClient && !/^\d/.test(line)) {
-      clienteNome = inlineClient[1].trim();
-      const item = parseItemLine(inlineClient[2], catalog, erros, avisos);
-      if (item) parsedItems.push(item);
+    const clientLine = parseClientLine(line);
+    if (clientLine) {
+      clienteNome = clientLine.clienteNome;
+      if (clientLine.itemPart) {
+        const item = parseItemLine(clientLine.itemPart, catalog, erros, avisos);
+        if (item) parsedItems.push(item);
+      }
       continue;
     }
 
