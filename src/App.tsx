@@ -11,6 +11,7 @@ import {
 } from "./lib/orders";
 import { isOrderPending } from "./utils/orderStatus";
 import { LoginPage } from "./pages/LoginPage";
+import { CatalogoPage } from "./pages/CatalogoPage";
 import { NovoPedidoPage } from "./pages/NovoPedidoPage";
 import { ResumoPage } from "./pages/ResumoPage";
 import type { AppView, Order, OrderStatus } from "./types";
@@ -169,6 +170,8 @@ export function App() {
           onReopen={handleReopen}
         />
       </div>
+
+      {view === "catalogo" && <CatalogoPage />}
 
       {view === "resumo" && (
         <ResumoPage orders={orders} loading={ordersLoading} />

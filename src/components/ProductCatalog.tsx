@@ -1,19 +1,24 @@
 import { getBrandById } from "../data/brands";
 import { formatCurrency } from "../utils/format";
+import { formatMarkupLabel } from "../utils/pricing";
 import type { BrandId, Product } from "../types";
 
 interface ProductCatalogProps {
   brandId: BrandId;
   products: Product[];
+  markupPercent: number;
   onAdd: (product: Product) => void;
   search: string;
+  readOnly?: boolean;
 }
 
 export function ProductCatalog({
   brandId,
   products,
+  markupPercent,
   onAdd,
   search,
+  readOnly = false,
 }: ProductCatalogProps) {
   const brand = getBrandById(brandId);
   if (!brand) return null;
@@ -42,17 +47,21 @@ export function ProductCatalog({
                       <span className="catalog-item__name">{product.nome}</span>
                       <span className="catalog-item__price">
                         {formatCurrency(product.preco)}
-                        <span className="catalog-item__markup">+60%</span>
+                        <span className="catalog-item__markup">
+                          {formatMarkupLabel(markupPercent)}
+                        </span>
                       </span>
                     </div>
-                    <button
-                      type="button"
-                      className="btn btn--add"
-                      aria-label={`Adicionar ${product.nome}`}
-                      onClick={() => onAdd(product)}
-                    >
-                      +
-                    </button>
+                    {!readOnly && (
+                      <button
+                        type="button"
+                        className="btn btn--add"
+                        aria-label={`Adicionar ${product.nome}`}
+                        onClick={() => onAdd(product)}
+                      >
+                        +
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>

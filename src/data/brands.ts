@@ -63,6 +63,7 @@ export const BRANDS: Brand[] = [
   {
     id: "roque-pinto",
     nome: "Licores Roque Pinto",
+    cidade: "Cachoeira",
     cor: "#1e5a9e",
     categorias: [
       {
@@ -104,6 +105,7 @@ export const BRANDS: Brand[] = [
   {
     id: "cachoeira-colonial",
     nome: "Cachoeira Colonial",
+    cidade: "Cachoeira",
     cor: "#5a9e6f",
     categorias: [
       {

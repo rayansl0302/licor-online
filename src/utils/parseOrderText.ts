@@ -177,8 +177,11 @@ function mergeCartItems(items: CartItem[]): CartItem[] {
   return Array.from(map.values());
 }
 
-export function parseOrderText(text: string): ParseOrderResult {
-  const catalog = getAllCatalogProducts();
+export function parseOrderText(
+  text: string,
+  markupPercent: number
+): ParseOrderResult {
+  const catalog = getAllCatalogProducts(markupPercent);
   const erros: string[] = [];
   const avisos: string[] = [];
   let clienteNome = "";

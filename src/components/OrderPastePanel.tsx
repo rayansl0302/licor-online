@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useMarkup } from "../contexts/MarkupContext";
 import { formatCurrency } from "../utils/format";
+import { formatMarkupLabel } from "../utils/pricing";
 import { parseOrderText, type ParseOrderResult } from "../utils/parseOrderText";
 
 interface OrderPastePanelProps {
@@ -15,11 +17,12 @@ const EXAMPLE = `Leila:
 1 lá creme Roque Pinto`;
 
 export function OrderPastePanel({ onParse }: OrderPastePanelProps) {
+  const { markupPercent } = useMarkup();
   const [text, setText] = useState("");
   const [preview, setPreview] = useState<ParseOrderResult | null>(null);
 
   const handleInterpret = () => {
-    setPreview(parseOrderText(text));
+    setPreview(parseOrderText(text, markupPercent));
   };
 
   const handleApply = () => {
@@ -32,7 +35,9 @@ export function OrderPastePanel({ onParse }: OrderPastePanelProps) {
     <section className="paste-panel" aria-label="Colar pedido">
       <div className="paste-panel__head">
         <h2 className="panel-title">Colar pedido</h2>
-        <span className="markup-badge">+60% nos valores</span>
+        <span className="markup-badge">
+          {formatMarkupLabel(markupPercent)} nos valores
+        </span>
       </div>
       <p className="paste-panel__hint">
         Cole o texto do WhatsApp. Primeira linha com nome e dois pontos (ex:{" "}

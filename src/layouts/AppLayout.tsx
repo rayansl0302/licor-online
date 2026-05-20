@@ -1,4 +1,6 @@
 import { useState, type ReactNode } from "react";
+import { useMarkup } from "../contexts/MarkupContext";
+import { formatMarkupLabel } from "../utils/pricing";
 import type { AppView } from "../types";
 import "./AppLayout.css";
 
@@ -10,6 +12,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: "novo", label: "Novo pedido", icon: "+" },
+  { id: "catalogo", label: "Catálogo", icon: "◎" },
   { id: "pedidos", label: "Histórico", icon: "☰" },
   { id: "resumo", label: "Resumo", icon: "◈" },
 ];
@@ -31,6 +34,7 @@ export function AppLayout({
   onLogout,
   children,
 }: AppLayoutProps) {
+  const { markupPercent } = useMarkup();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleNav = (next: AppView) => {
@@ -105,7 +109,9 @@ export function AppLayout({
           <h1 className="topbar__title">
             {NAV_ITEMS.find((i) => i.id === view)?.label ?? "Licor"}
           </h1>
-          <p className="topbar__meta">Preços com +60% · histórico na nuvem</p>
+          <p className="topbar__meta">
+            Lucro {formatMarkupLabel(markupPercent)} · histórico na nuvem
+          </p>
         </header>
         <div className="app-shell__content">{children}</div>
       </div>

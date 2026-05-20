@@ -11,6 +11,7 @@ export interface Brand {
   id: BrandId;
   nome: string;
   cor: string;
+  cidade?: string;
   categorias: { nome: string; produtos: Omit<Product, "id" | "categoria">[] }[];
 }
 
@@ -37,4 +38,4 @@ export interface Order {
 
 export type OrderStatus = "pendente" | "vendido" | "cancelado" | "todos";
 
-export type AppView = "novo" | "pedidos" | "resumo";
+export type AppView = "novo" | "pedidos" | "resumo" | "catalogo";

@@ -3,6 +3,7 @@ import { BrandTabs } from "../components/BrandTabs";
 import { CartPanel } from "../components/CartPanel";
 import { OrderPastePanel } from "../components/OrderPastePanel";
 import { ProductCatalog } from "../components/ProductCatalog";
+import { useMarkup } from "../contexts/MarkupContext";
 import { getCatalogForBrand } from "../data/catalog";
 import { getBrandById } from "../data/brands";
 import { useCart } from "../hooks/useCart";
@@ -27,8 +28,12 @@ export function NovoPedidoPage({ onSaved, onGoToPedidos }: NovoPedidoPageProps) 
   const [saving, setSaving] = useState(false);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
+  const { markupPercent } = useMarkup();
   const cart = useCart();
-  const products = useMemo(() => getCatalogForBrand(brandId), [brandId]);
+  const products = useMemo(
+    () => getCatalogForBrand(brandId, markupPercent),
+    [brandId, markupPercent]
+  );
   const brand = getBrandById(brandId);
 
   useEffect(() => {
@@ -140,12 +145,13 @@ export function NovoPedidoPage({ onSaved, onGoToPedidos }: NovoPedidoPageProps) 
               onChange={(e) => setSearch(e.target.value)}
             />
           </label>
-          <ProductCatalog
-            brandId={brandId}
-            products={products}
-            onAdd={cart.addProduct}
-            search={search}
-          />
+                <ProductCatalog
+                  brandId={brandId}
+                  products={products}
+                  markupPercent={markupPercent}
+                  onAdd={cart.addProduct}
+                  search={search}
+                />
         </section>
 
         <CartPanel
